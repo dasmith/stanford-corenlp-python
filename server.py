@@ -6,7 +6,6 @@ It can be imported as a module or run as a server.
 Dustin Smith, 2011
 """
 
-import subprocess, string, time
 from wsgiref import simple_server
 from webob import Request, Response
 from webob import exc
@@ -15,6 +14,8 @@ from wsgiref import simple_server
 from simplejson import loads, dumps
 import traceback
 import sys
+
+from progressbar import *
 
 """
 if not os.path.exists()
@@ -30,10 +31,27 @@ class StanfordCoreNLPServer(object):
         "stanford-corenlp-src-2010-11-06.jar","jgraph.jar", "jgrapht.jar", "xom.jar"]
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
 
-        self._server = subprocess.Popen("java -Xmx3g -cp %s %s" % (':'.join(jars), classname),
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self._server.poll()
+        for jar in jars:
+            if not os.file.exists(jar):
+                print "Error! Cannot locate %s" % jar
+                sys.exit(1)
 
+        self._server = pexpect.spawn("%s -Xmx3g -cp %s %s" % (javapath, ':'.join(jars), classname))
+
+        widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA(), ' ', FileTransferSpeed()]
+        pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
+        self._server.expect("done.")
+        pbar.update(1)
+        self._server.expect("done.")
+        pbar.update(2)
+        self._server.expect("done.")
+        pbar.update(3)
+        self._server.expect("Entering interactive shell.")
+        pbar.finish()
+        print self._server.before
+        
+        self._server.expect("NLP> Sentence")
+        
         if not self._server.returncode == 0:
             print "Server could not start. Error: "
             for line in self._server.stderr.readlines(): print "\t", line
