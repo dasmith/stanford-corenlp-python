@@ -97,6 +97,7 @@ server.register_function(pow)
 server.handle_request()
 """
 
+
 # This implementation was converted from SimpleXMLRPCServer by
 # David McNab (david@rebirthing.co.nz)
 
