@@ -16,7 +16,7 @@ import os
 from SimpleJSONRPCServer import *
 from progressbar import *
 
-class StanfordCoreNLPServer(object):
+class StanfordCoreNLP(object):
     
     def __init__(self):	
         """
@@ -52,83 +52,24 @@ class StanfordCoreNLPServer(object):
         pbar.update(3)
         self._server.expect("done.", timeout=600) # Load CoNLL classifier (~50sec)
         pbar.update(4)
-        self._server.expect("done.", timeout=200) # Load englishPCFG (~3sec)
+        self._server.expect("done.", timeout=200)
         pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
         print self._server.before
-        
     
-    def __call__(self, environ, start_response):
-        req = Request(environ)
-        try:
-            resp = self.process(req)
-        except ValueError, e:
-            resp = exc.HTTPBadRequest(str(e))
-        except exc.HTTPException, e:
-            resp = e
-        return resp(environ, start_response)
+    def _listMethods(self):
+        return ['parse']
 
-    def parse(self, str):
-	print "Input", str
-	print p.stdout.readline()
- 	out, err = self._server.communicate(str)
-	print "Result"
-	print "\t OUT:", out
-	print "\t ERR:", err
-	print p.stdout.readline()
-	return out
-
-
-	
-    def process(self, req):
-        if not req.method == 'POST':
-            raise exc.HTTPMethodNotAllowed( "Only POST allowed", allowed='POST').exception
-        try:
-            json = loads(req.body)
-        except ValueError, e:
-            raise ValueError('Bad JSON: %s' % e)
-        try:
-            method = json['method']
-            params = json['params']
-            id = json['id']
-        except KeyError, e:
-            raise ValueError( "JSON body missing parameter: %s" % e)
-        if method in ["process",'__init__']:
-            raise exc.HTTPForbidden( "Bad method name %s" % method).exception
-        if not isinstance(params, list):
-            raise ValueError( "Bad params %r: must be a list" % params)
-        try:
-            method = getattr(self, method)
-        except AttributeError:
-            raise ValueError( "No such method %s" % method)
-        try:
-            result = method(*params)
-        except:
-            text = traceback.format_exc()
-            exc_value = sys.exc_info()[1]
-            error_value = dict(
-                name='JSONRPCError',
-                code=100,
-                message=str(exc_value),
-                error=text)
-            return Response(
-                status=500,
-                content_type='application/json',
-                body=dumps(dict(result=None,
-                                error=error_value,
-                                id=id)))
-        return Response(
-            content_type='application/json',
-            body=dumps(dict(result=result,
-                            error=None,
-                            id=id)))
-
+    def _dispatch(self, method, params):
+        if method == 'parse':
+            self._server.sendline(*params)
+            return self._server.readlines()
+        return 'bad method'
 
 
 if __name__ == '__main__':
-    parser = optparse.OptionParser(
-        usage="%prog [OPTIONS] MODULE:EXPRESSION")
+    parser = optparse.OptionParser(usage="%prog [OPTIONS]")
     parser.add_option(
         '-p', '--port', default='8080',
         help='Port to serve on (default 8080)')
@@ -137,9 +78,10 @@ if __name__ == '__main__':
         help='Host to serve on (default localhost; 0.0.0.0 to make public)')
     options, args = parser.parse_args()
     parser.print_help()
-    app = StanfordCoreNLPServer()
-    server = simple_server.make_server( options.host, int(options.port), app)
+    server = SimpleXMLRPCServer((options.host, int(options.port))
+    server.register_introspection_functions()
     print 'Serving on http://%s:%s' % (options.host, options.port)
+    server.register_instance(StanfordCoreNLP())
     server.serve_forever()
 
 
