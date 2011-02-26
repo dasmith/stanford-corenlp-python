@@ -50,10 +50,16 @@ class StanfordCoreNLPServer(object):
         # show progress bar while loading the models
         widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()]
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
-        self._server.expect("done.")
+        self._server.expect("done.", timeout=20)
         pbar.update(1)
-        self._server.expect("done.")
+        self._server.expect("done.", timeout=200)
         pbar.update(2)
+        self._server.expect("done.", timeout=200)
+        pbar.update(3)
+        self._server.expect("done.", timeout=200)
+        pbar.update(4)
+        self._server.expect("done.", timeout=200)
+        pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
         print self._server.before
