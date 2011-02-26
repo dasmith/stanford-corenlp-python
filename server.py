@@ -3,24 +3,18 @@ This is a Python interface to Stanford Core NLP tools.
 
 It can be imported as a module or run as a server.
 
+Works with the 2010-11-22 release.
+
 Dustin Smith, 2011
 """
 import pexpect
-from wsgiref import simple_server
-from webob import Request, Response
-from webob import exc
-import optparse
-from wsgiref import simple_server
 from simplejson import loads, dumps
-import traceback
+import optparse
 import sys
 import os
 
+from SimpleJSONRPCServer import *
 from progressbar import *
-
-"""
-if not os.path.exists()
-"""
 
 class StanfordCoreNLPServer(object):
     
@@ -50,15 +44,15 @@ class StanfordCoreNLPServer(object):
         # show progress bar while loading the models
         widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()]
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
-        self._server.expect("done.", timeout=20)
+        self._server.expect("done.", timeout=20) # Load pos tagger model (~5sec)
         pbar.update(1)
-        self._server.expect("done.", timeout=200)
+        self._server.expect("done.", timeout=200) # Load NER-all classifier (~33sec)
         pbar.update(2)
-        self._server.expect("done.", timeout=600)
+        self._server.expect("done.", timeout=600) # Load NER-muc classifier (~60sec)
         pbar.update(3)
-        self._server.expect("done.", timeout=600)
+        self._server.expect("done.", timeout=600) # Load CoNLL classifier (~50sec)
         pbar.update(4)
-        self._server.expect("done.", timeout=200)
+        self._server.expect("done.", timeout=200) # Load englishPCFG (~3sec)
         pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
