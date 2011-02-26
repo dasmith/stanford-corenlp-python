@@ -23,13 +23,19 @@ if not os.path.exists()
 """
 
 class StanfordCoreNLPServer(object):
-    """
-    Serve the given object via json-rpc (http://json-rpc.org/)
-    """
+    
     def __init__(self):	
-        print "Initializing Server"
-        jars = ["stanford-corenlp-2010-11-12.jar", "stanford-corenlp-models-2010-11-06.jar",
-        "jgraph.jar", "jgrapht.jar", "xom.jar"]
+        """
+        Checks the location of the jar files.
+        Spawns the server as a process.
+        """
+
+        jars = ["stanford-corenlp-2010-11-12.jar", 
+                "stanford-corenlp-models-2010-11-06.jar",
+                "jgraph.jar",
+                "jgrapht.jar",
+                "xom.jar"]
+
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
         javapath = "java"
 
@@ -37,9 +43,11 @@ class StanfordCoreNLPServer(object):
             if not os.path.exists(jar):
                 print "Error! Cannot locate %s" % jar
                 sys.exit(1)
-
+        
+        # spawn the server
         self._server = pexpect.spawn("%s -Xmx3g -cp %s %s" % (javapath, ':'.join(jars), classname))
 
+        # show progress bar while loading the models
         widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()]
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
         self._server.expect("done.")
@@ -48,10 +56,6 @@ class StanfordCoreNLPServer(object):
         pbar.update(2)
         self._server.expect("done.")
         pbar.update(3)
-        self._server.expect("done.")
-        pbar.update(4)
-        self._server.expect("done.")
-        pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
         print self._server.before
