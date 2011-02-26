@@ -74,7 +74,7 @@ if __name__ == '__main__':
         help='Host to serve on (default localhost; 0.0.0.0 to make public)')
     options, args = parser.parse_args()
     parser.print_help()
-    server = jsonrpc.Server(jsonrpc.JsonRrpc20(), 
+    server = jsonrpc.Server(jsonrpc.JsonRpc20(), 
                             jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))),
                             logfunc=jsonrpc.log_file("stanford_server.log"))
     corenlp = StanfordCoreNLP() 
