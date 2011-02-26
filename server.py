@@ -54,8 +54,6 @@ class StanfordCoreNLPServer(object):
         pbar.update(1)
         self._server.expect("done.")
         pbar.update(2)
-        self._server.expect("done.")
-        pbar.update(3)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
         print self._server.before
