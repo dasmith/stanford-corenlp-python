@@ -25,22 +25,22 @@ class StanfordCoreNLPServer(object):
     Serve the given object via json-rpc (http://json-rpc.org/)
     """
     def __init__(self):	
-	print "Initializing Server"
-    jars = ["stanford-corenlp-2010-11-12.jar", "stanford-corenlp-models-2010-11-06.jar",
-    "stanford-corenlp-src-2010-11-06.jar","jgraph.jar", "jgrapht.jar", "xom.jar"]
-    classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
+        print "Initializing Server"
+        jars = ["stanford-corenlp-2010-11-12.jar", "stanford-corenlp-models-2010-11-06.jar",
+        "stanford-corenlp-src-2010-11-06.jar","jgraph.jar", "jgrapht.jar", "xom.jar"]
+        classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
 
-    self._server = subprocess.Popen("java -Xmx3g -cp %s %s" % (':'.join(jars), classname),
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            shell=True)
-    self._server.wait()
+        self._server = subprocess.Popen("java -Xmx3g -cp %s %s" % (':'.join(jars), classname),
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                shell=True)
+        self._server.wait()
 
-    if not self._server.returncode == 0:
-        print "Server could not start. Error: "
-        for line in self._server.stderr.readlines(): print "\t", line
-    else:
-        for line in self._server.stdout.readlines(): print "\t", line
-	print "Server", self._server
+        if not self._server.returncode == 0:
+            print "Server could not start. Error: "
+            for line in self._server.stderr.readlines(): print "\t", line
+        else:
+            for line in self._server.stdout.readlines(): print "\t", line
+        print "Server", self._server
     
     def __call__(self, environ, start_response):
         req = Request(environ)
@@ -110,9 +110,6 @@ class StanfordCoreNLPServer(object):
 
 
 if __name__ == '__main__':
-    pass
-
-if False:
     parser = optparse.OptionParser(
         usage="%prog [OPTIONS] MODULE:EXPRESSION")
     parser.add_option(
