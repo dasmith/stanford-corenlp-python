@@ -5,7 +5,6 @@ It can be imported as a module or run as a server.
 
 Dustin Smith, 2011
 """
-
 from wsgiref import simple_server
 from webob import Request, Response
 from webob import exc
@@ -14,6 +13,7 @@ from wsgiref import simple_server
 from simplejson import loads, dumps
 import traceback
 import sys
+import os
 
 from progressbar import *
 
@@ -32,7 +32,7 @@ class StanfordCoreNLPServer(object):
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
 
         for jar in jars:
-            if not os.file.exists(jar):
+            if not os.path.exists(jar):
                 print "Error! Cannot locate %s" % jar
                 sys.exit(1)
 
