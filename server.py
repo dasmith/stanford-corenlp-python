@@ -40,7 +40,7 @@ class StanfordCoreNLPServer(object):
 
         self._server = pexpect.spawn("%s -Xmx3g -cp %s %s" % (javapath, ':'.join(jars), classname))
 
-        widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA(300)]
+        widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()]
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
         self._server.expect("done.")
         pbar.update(1)
@@ -48,6 +48,10 @@ class StanfordCoreNLPServer(object):
         pbar.update(2)
         self._server.expect("done.")
         pbar.update(3)
+        self._server.expect("done.")
+        pbar.update(4)
+        self._server.expect("done.")
+        pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
         print self._server.before
