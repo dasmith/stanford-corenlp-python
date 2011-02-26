@@ -75,8 +75,7 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
     parser.print_help()
     server = jsonrpc.Server(jsonrpc.JsonRpc20(), 
-                            jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))),
-                            logfunc=jsonrpc.log_file("stanford_server.log"))
+                            jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))))
     corenlp = StanfordCoreNLP() 
     server.register_function(corenlp.parse)
     #server.register_instance(StanfordCoreNLP())
