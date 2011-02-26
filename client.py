@@ -1,15 +1,7 @@
-from webob import Request
-from wsgiproxy.exactproxy import proxy_exact_request
-from simplejson import loads, dumps
+import jsonrpc
+server = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
+        jsonrpc.TransportTcpIp(addr=("127.0.0.1", 8080)))
 
-proxy = proxy_exact_request        
-
-json = dict(method='parse', id=None, params=['this is a sentence'])
-req = Request.blank("http://localhost:8080")
-req.method = 'POST'
-req.content_type = 'application/json'
-req.body = dumps(json)
-resp = req.get_response(proxy)
-json = loads(resp.body)
-print json
-
+# call a remote-procedure 
+result = server.parse("hello world")
+print "Result", result

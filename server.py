@@ -13,7 +13,8 @@ import optparse
 import sys
 import os
 
-from SimpleJSONRPCServer import *
+import jsonrpc
+
 from progressbar import *
 
 class StanfordCoreNLP(object):
@@ -52,20 +53,15 @@ class StanfordCoreNLP(object):
         pbar.update(3)
         self._server.expect("done.", timeout=600) # Load CoNLL classifier (~50sec)
         pbar.update(4)
-        self._server.expect("done.", timeout=200)
+        self._server.expect("done.", timeout=200) # Loading PCFG (~3sec)
         pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
         print self._server.before
     
-    def _listMethods(self):
-        return ['parse']
-
-    def _dispatch(self, method, params):
-        if method == 'parse':
-            self._server.sendline(*params)
-            return self._server.readlines()
-        return 'bad method'
+    def parse(self, text):
+        self._server.sendline(text)
+        return self._server.readlines()
 
 
 if __name__ == '__main__':
@@ -78,11 +74,14 @@ if __name__ == '__main__':
         help='Host to serve on (default localhost; 0.0.0.0 to make public)')
     options, args = parser.parse_args()
     parser.print_help()
-    server = SimpleJSONRPCServer((options.host, int(options.port)))
-    server.register_introspection_functions()
+    server = jsonrpc.Server(jsonrpc.JsonRrpc20(), 
+                            jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))),
+                            logfunc=jsonrpc.log_file("stanford_server.log"))
+    corenlp = StanfordCoreNLP() 
+    server.register_function(corenlp.parse)
+    #server.register_instance(StanfordCoreNLP())
     print 'Serving on http://%s:%s' % (options.host, options.port)
-    server.register_instance(StanfordCoreNLP())
-    server.serve_forever()
+    server.serve()
 
 
 
