@@ -78,7 +78,7 @@ if __name__ == '__main__':
         help='Host to serve on (default localhost; 0.0.0.0 to make public)')
     options, args = parser.parse_args()
     parser.print_help()
-    server = SimpleXMLRPCServer((options.host, int(options.port)))
+    server = SimpleJSONRPCServer((options.host, int(options.port)))
     server.register_introspection_functions()
     print 'Serving on http://%s:%s' % (options.host, options.port)
     server.register_instance(StanfordCoreNLP())
