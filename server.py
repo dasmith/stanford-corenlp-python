@@ -31,9 +31,8 @@ class StanfordCoreNLPServer(object):
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
 
         self._server = subprocess.Popen("java -Xmx3g -cp %s %s" % (':'.join(jars), classname),
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                shell=True)
-        self._server.wait()
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self._server.poll()
 
         if not self._server.returncode == 0:
             print "Server could not start. Error: "
@@ -54,12 +53,12 @@ class StanfordCoreNLPServer(object):
 
     def parse(self, str):
 	print "Input", str
- 	out, err = self._server.stdin.write(str)
 	print p.stdout.readline()
  	out, err = self._server.communicate(str)
 	print "Result"
 	print "\t OUT:", out
 	print "\t ERR:", err
+	print p.stdout.readline()
 	return out
 
 
