@@ -5,6 +5,7 @@ It can be imported as a module or run as a server.
 
 Dustin Smith, 2011
 """
+import pexpect
 from wsgiref import simple_server
 from webob import Request, Response
 from webob import exc
@@ -28,8 +29,9 @@ class StanfordCoreNLPServer(object):
     def __init__(self):	
         print "Initializing Server"
         jars = ["stanford-corenlp-2010-11-12.jar", "stanford-corenlp-models-2010-11-06.jar",
-        "stanford-corenlp-src-2010-11-06.jar","jgraph.jar", "jgrapht.jar", "xom.jar"]
+        "jgraph.jar", "jgrapht.jar", "xom.jar"]
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
+        javapath = "java"
 
         for jar in jars:
             if not os.path.exists(jar):
@@ -38,7 +40,7 @@ class StanfordCoreNLPServer(object):
 
         self._server = pexpect.spawn("%s -Xmx3g -cp %s %s" % (javapath, ':'.join(jars), classname))
 
-        widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA(), ' ', FileTransferSpeed()]
+        widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA(300)]
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
         self._server.expect("done.")
         pbar.update(1)
@@ -50,14 +52,6 @@ class StanfordCoreNLPServer(object):
         pbar.finish()
         print self._server.before
         
-        self._server.expect("NLP> Sentence")
-        
-        if not self._server.returncode == 0:
-            print "Server could not start. Error: "
-            for line in self._server.stderr.readlines(): print "\t", line
-        else:
-            for line in self._server.stdout.readlines(): print "\t", line
-        print "Server", self._server
     
     def __call__(self, environ, start_response):
         req = Request(environ)
