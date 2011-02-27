@@ -33,7 +33,7 @@ That will run a public JSON-RPC server on port 3456.
 
 Assuming you are running on port 8080, the code in `client.py` shows an example parse: 
 
-    port jsonrpc
+    import jsonrpc
     server = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
             jsonrpc.TransportTcpIp(addr=("127.0.0.1", 8080)))
 
@@ -41,9 +41,20 @@ Assuming you are running on port 8080, the code in `client.py` shows an example 
     print "Result", result
 
 
-Produces:
+Produces a list with a parsed dictionary for each sentence:
 
-    Result [{"text": "hello world", "tuples": [["amod", "world", "hello"]], "words": {"world": {"NamedEntityTag": "O", "CharacterOffsetEnd": "11", "Lemma": "world", "PartOfSpeech": "NN", "CharacterOffsetBegin": "6"}, "hello": {"NamedEntityTag": "O", "CharacterOffsetEnd": "5", "Lemma": "hello", "PartOfSpeech": "JJ", "CharacterOffsetBegin": "0"}}}]
+    Result [{"text": "hello world", 
+            "tuples": [["amod", "world", "hello"]], 
+            "words": {"world": {"NamedEntityTag": "O", 
+                                "CharacterOffsetEnd": "11", 
+                                "Lemma": "world", 
+                                "PartOfSpeech": "NN", 
+                                "CharacterOffsetBegin": "6"}, 
+                      "hello": {"NamedEntityTag": "O", 
+                                "CharacterOffsetEnd": "5", 
+                                "Lemma": "hello", 
+                                "PartOfSpeech": "JJ", 
+                                "CharacterOffsetBegin": "0"}}}]
 
 
 <!--
