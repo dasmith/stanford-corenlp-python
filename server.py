@@ -26,14 +26,14 @@ def parse_parser_results(text):
     state = 0
     tmp = {}
     results = []
-    for line in text.split("\n    "):
+    for line in text.split("\n"):
         if line.startswith("Sentence #"):
             state = 1
             if len(tmp.keys()) != 0:
                 results.append(tmp)
                 tmp = {}
         elif state == 1:
-            tmp['text'] = line
+            tmp['text'] = line.strip()
             state = 2
         elif state == 2:
             if not line.startswith("[Text="):
@@ -94,9 +94,10 @@ class StanfordCoreNLP(object):
         
         # spawn the server
         self._server = pexpect.spawn("%s -Xmx3g -cp %s %s" % (javapath, ':'.join(jars), classname))
-
+        
+        print "Starting the Stanford Core NLP parser."
         # show progress bar while loading the models
-        widgets = ['Starting Server: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()]
+        widgets = ['Loading Models: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()]
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
         self._server.expect("done.", timeout=20) # Load pos tagger model (~5sec)
         pbar.update(1)
@@ -130,9 +131,12 @@ class StanfordCoreNLP(object):
             freshlen = len(ch)
             time.sleep (0.0001)
             incoming = incoming + ch
-            if end_time - time.time() < 0:
+            if "\nNLP>" in incoming or end_time - time.time() < 0:
                 break
-        return dumps(parse_parser_results(incoming))
+        results = parse_parser_results(incoming)
+        print "Results", results
+        # convert to JSON and return
+        return dumps(results)
 
 
 if __name__ == '__main__':

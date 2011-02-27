@@ -744,7 +744,7 @@ class TransportSocket(Transport):
         - improve this (e.g. make sure that connections are closed, socket-files are deleted etc.)
         - exception-handling? (socket.error)
     """
-    def __init__( self, addr, limit=4096, sock_type=socket.AF_INET, sock_prot=socket.SOCK_STREAM, timeout=1.0, logfunc=log_dummy ):
+    def __init__( self, addr, limit=4096, sock_type=socket.AF_INET, sock_prot=socket.SOCK_STREAM, timeout=5.0, logfunc=log_dummy ):
         """
         :Parameters:
             - addr: socket-address
@@ -833,7 +833,7 @@ if hasattr(socket, 'AF_UNIX'):
     class TransportUnixSocket(TransportSocket):
         """Transport via Unix Domain Socket.
         """
-        def __init__(self, addr=None, limit=4096, timeout=1.0, logfunc=log_dummy):
+        def __init__(self, addr=None, limit=4096, timeout=5.0, logfunc=log_dummy):
             """
             :Parameters:
                 - addr: "socket_file"
@@ -847,7 +847,7 @@ if hasattr(socket, 'AF_UNIX'):
 class TransportTcpIp(TransportSocket):
     """Transport via TCP/IP.
     """
-    def __init__(self, addr=None, limit=4096, timeout=1.0, logfunc=log_dummy):
+    def __init__(self, addr=None, limit=4096, timeout=5.0, logfunc=log_dummy):
         """
         :Parameters:
             - addr: ("host",port)
