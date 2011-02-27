@@ -121,7 +121,7 @@ class StanfordCoreNLP(object):
         pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
-        print "Server loaded."
+        print "NLP tools loaded."
         #print self._server.before
 
     def parse(self, text):
@@ -170,6 +170,7 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
     server = jsonrpc.Server(jsonrpc.JsonRpc20(), 
                             jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))))
-    server.register_instance(StanfordCoreNLP())
+    nlp = StanfordCoreNLP()
+    server.register_function(nlp.parse())
     print 'Serving on http://%s:%s' % (options.host, options.port)
     server.serve()
