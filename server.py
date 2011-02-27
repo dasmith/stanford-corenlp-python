@@ -1,21 +1,73 @@
 """
 This is a Python interface to Stanford Core NLP tools.
-
 It can be imported as a module or run as a server.
 
-Works with the 2010-11-22 release.
+For more details:
+    https://github.com/dasmith/stanford-corenlp-python
 
-Dustin Smith, 2011
+By Dustin Smith, 2011
 """
 import pexpect
 from simplejson import loads, dumps
 import optparse
 import sys
 import os
-
+import time
+import re
 import jsonrpc
-
 from progressbar import *
+
+
+def remove_id(word):
+    """Removes the numeric suffix from the parsed recognized words: e.g. 'word-2' > 'word' """
+    return word.count("-") == 0 and word or word[0:word.rindex("-")]
+
+def parse_parser_results(text):
+    state = 0
+    tmp = {}
+    results = []
+    for line in text.split("\n    "):
+        if line.startswith("Sentence #"):
+            state = 1
+            if len(tmp.keys()) != 0:
+                results.append(tmp)
+                tmp = {}
+        elif state == 1:
+            tmp['text'] = line
+            state = 2
+        elif state == 2:
+            if not line.startswith("[Text="):
+                print line
+                raise Exception("Parse error")
+            tmp['words'] = {} 
+            exp = re.compile('\[([a-zA-Z0-9=. ]+)\]')
+            m = exp.findall(line)
+            for s in m:
+                av = re.split("=| ", s) # attribute-value tuples
+                tmp['words'][av[1]] = dict(zip(*[av[2:][x::2] for x in (0, 1)])) 
+            print tmp
+            state = 3
+        elif state == 3:
+            # skip over parse tree
+            if not (line.startswith(" ") or line.startswith("(ROOT")):
+                state = 4
+                tmp['tuples'] = [] 
+        if state == 4:
+            # dependency parse
+            if not line.startswith(" ") and line.rstrip().endswith(")"):
+                split_entry = re.split("\(|, ", line[:-2]) 
+                if len(split_entry) == 3:
+                    rel, left, right = map(lambda x: remove_id(x), split_entry)
+                    tmp['tuples'].append((rel,left,right))
+                    print "\n", rel, left, right
+            elif "Coreference links" in line:
+                state = 5
+        elif state == 5:
+            # coreference links.  Not yet implemented
+            print "CR", line
+    if len(tmp.keys()) != 0:
+        results.append(tmp)
+    return results
 
 class StanfordCoreNLP(object):
     
@@ -58,10 +110,26 @@ class StanfordCoreNLP(object):
         self._server.expect("Entering interactive shell.")
         pbar.finish()
         print self._server.before
-    
+
     def parse(self, text):
-        self._server.sendline(text)
-        return self._server.readlines()
+        """ 
+        This function takes a text string, sends it to the Stanford parser,
+        reads in the result, parses the results and returns a list
+        with one dictionary entry for each parsed sentence, in JSON format.
+        """
+        print "Request", text
+        print self._server.sendline(text)
+        end_time = time.time() + 2 
+        incoming = ""
+        while True: 
+            # Still have time left, so read more data
+            ch = self._server.read_nonblocking (2000, 3)
+            freshlen = len(ch)
+            time.sleep (0.0001)
+            incoming = incoming + ch
+            if end_time - time.time() < 0:
+                break
+        return dumps(parse_parser_results(incoming))
 
 
 if __name__ == '__main__':
@@ -73,7 +141,7 @@ if __name__ == '__main__':
         '-H', '--host', default='127.0.0.1',
         help='Host to serve on (default localhost; 0.0.0.0 to make public)')
     options, args = parser.parse_args()
-    parser.print_help()
+    #parser.print_help()
     server = jsonrpc.Server(jsonrpc.JsonRpc20(), 
                             jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))))
     corenlp = StanfordCoreNLP() 
@@ -81,7 +149,3 @@ if __name__ == '__main__':
     #server.register_instance(StanfordCoreNLP())
     print 'Serving on http://%s:%s' % (options.host, options.port)
     server.serve()
-
-
-
-
