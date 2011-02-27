@@ -54,7 +54,7 @@ Produces a list with a parsed dictionary for each sentence:
                                 "CharacterOffsetEnd": "5", 
                                 "Lemma": "hello", 
                                 "PartOfSpeech": "JJ", 
-                                "CharacterOffsetBegin": 0}}}]
+                                "CharacterOffsetBegin": "0"}}}]
 
 
 To use it in a regular script or to edit/debug, load the module instead:

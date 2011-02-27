@@ -47,10 +47,10 @@ def parse_parser_results(text):
                 # split into attribute-value list 
                 av = re.split("=| ", s) 
                 # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
-                av = zip(*[av[2:][x::2] for x in (0, 1)]) 
-                # save as attr-value dict, convert numbers into ints
-                tmp['words'][av[1]] = dict(av)
+                # and save as attr-value dict, convert numbers into ints
+                tmp['words'][av[1]] = dict(zip(*[av[2:][x::2] for x in (0, 1)]))
                 # the results of this can't be serialized into JSON?
+                # av = zip(*[av[2:][x::2] for x in (0, 1)]) 
                 # tmp['words'][av[1]] = dict(map(lambda x: (x[0], x[1].isdigit() and int(x[1]) or x[1]), av))
             state = 3
         elif state == 3:
