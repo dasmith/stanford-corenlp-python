@@ -50,6 +50,8 @@ def parse_parser_results(text):
                 av = zip(*[av[2:][x::2] for x in (0, 1)]) 
                 # save as attr-value dict, convert numbers into ints
                 tmp['words'][av[1]] = dict(map(lambda x: (x[0], x[1].isdigit() and int(x[1]) or x[1]), av))
+                # the results of this can't be serialized into JSON?
+                # tmp['words'][av[1]] = dict(map(lambda x: (x[0], x[1].isdigit() and int(x[1]) or x[1]), av))
             state = 3
         elif state == 3:
             # skip over parse tree
@@ -63,7 +65,7 @@ def parse_parser_results(text):
                 split_entry = re.split("\(|, ", line[:-1]) 
                 if len(split_entry) == 3:
                     rel, left, right = map(lambda x: remove_id(x), split_entry)
-                    tmp['tuples'].append((rel,left,right))
+                    tmp['tuples'].append(tuple([rel,left,right]))
                     print "\n", rel, left, right
             elif "Coreference links" in line:
                 state = 5
@@ -104,13 +106,17 @@ class StanfordCoreNLP(object):
         
         print "Starting the Stanford Core NLP parser."
         # show progress bar while loading the models
-        widgets = ['Loading Models: ', Fraction(), ' ', Bar(marker=RotatingMarker()), ' ', ETA()]
+        self.state = "State of the parser"
+        widgets = ['Loading Models: ', Fraction(), ' ',
+                Bar(marker=RotatingMarker()), ' ', self.state ]
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
         self._server.expect("done.", timeout=20) # Load pos tagger model (~5sec)
         pbar.update(1)
         self._server.expect("done.", timeout=200) # Load NER-all classifier (~33sec)
         pbar.update(2)
         self._server.expect("done.", timeout=600) # Load NER-muc classifier (~60sec)
+        self.state = "Loading CoNLL classifier"
+        widgets = ['Loading Models: ', Fraction(), ' ',
         pbar.update(3)
         self._server.expect("done.", timeout=600) # Load CoNLL classifier (~50sec)
         pbar.update(4)
