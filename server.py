@@ -49,7 +49,7 @@ def parse_parser_results(text):
                 # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
                 av = zip(*[av[2:][x::2] for x in (0, 1)]) 
                 # save as attr-value dict, convert numbers into ints
-                tmp['words'][av[1]] = dict(map(lambda x: (x[0], x[1].isdigit() and int(x[1]) or x[1]), av))
+                tmp['words'][av[1]] = dict(av)
                 # the results of this can't be serialized into JSON?
                 # tmp['words'][av[1]] = dict(map(lambda x: (x[0], x[1].isdigit() and int(x[1]) or x[1]), av))
             state = 3
@@ -106,16 +106,15 @@ class StanfordCoreNLP(object):
         
         print "Starting the Stanford Core NLP parser."
         # show progress bar while loading the models
-        self.state = "State of the parser"
         widgets = ['Loading Models: ', Fraction(), ' ',
                 Bar(marker=RotatingMarker()), ' ', self.state ]
+        self.state = "plays hard to get, smiles from time to time"
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
         self._server.expect("done.", timeout=20) # Load pos tagger model (~5sec)
         pbar.update(1)
         self._server.expect("done.", timeout=200) # Load NER-all classifier (~33sec)
         pbar.update(2)
         self._server.expect("done.", timeout=600) # Load NER-muc classifier (~60sec)
-        self.state = "Loading CoNLL classifier"
         pbar.update(3)
         self._server.expect("done.", timeout=600) # Load CoNLL classifier (~50sec)
         pbar.update(4)
