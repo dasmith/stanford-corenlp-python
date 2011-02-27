@@ -105,10 +105,10 @@ class StanfordCoreNLP(object):
         self._server = pexpect.spawn("%s -Xmx3g -cp %s %s %s" % (javapath, ':'.join(jars), classname, props))
         
         print "Starting the Stanford Core NLP parser."
+        self.state = "plays hard to get, smiles from time to time"
         # show progress bar while loading the models
         widgets = ['Loading Models: ', Fraction(), ' ',
                 Bar(marker=RotatingMarker()), ' ', self.state ]
-        self.state = "plays hard to get, smiles from time to time"
         pbar = ProgressBar(widgets=widgets, maxval=5, force_update=True).start()
         self._server.expect("done.", timeout=20) # Load pos tagger model (~5sec)
         pbar.update(1)
