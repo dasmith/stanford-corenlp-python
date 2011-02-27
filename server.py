@@ -86,6 +86,9 @@ class StanfordCoreNLP(object):
 
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
         javapath = "java"
+        # include the properties file, so you can change defaults
+        # but any changes in output format will break parse_parser_results() 
+        props = "-props default.properties" 
 
         for jar in jars:
             if not os.path.exists(jar):
@@ -93,7 +96,7 @@ class StanfordCoreNLP(object):
                 sys.exit(1)
         
         # spawn the server
-        self._server = pexpect.spawn("%s -Xmx3g -cp %s %s" % (javapath, ':'.join(jars), classname))
+        self._server = pexpect.spawn("%s -Xmx3g -cp %s %s %s" % (javapath, ':'.join(jars), classname, props))
         
         print "Starting the Stanford Core NLP parser."
         # show progress bar while loading the models
@@ -111,7 +114,8 @@ class StanfordCoreNLP(object):
         pbar.update(5)
         self._server.expect("Entering interactive shell.")
         pbar.finish()
-        print self._server.before
+        print "Server loaded."
+        #print self._server.before
 
     def parse(self, text):
         """ 
@@ -121,7 +125,9 @@ class StanfordCoreNLP(object):
         """
         print "Request", text
         print self._server.sendline(text)
-        max_expected_time = 2 + len(text) / 200.0
+        # How much time should we give the parser to parse it?it
+        #
+        max_expected_time = min(5, 2 + len(text) / 200.0)
         print "Timeout", max_expected_time
         end_time = time.time() + max_expected_time 
         incoming = ""
@@ -131,8 +137,11 @@ class StanfordCoreNLP(object):
             freshlen = len(ch)
             time.sleep (0.0001)
             incoming = incoming + ch
-            if "\nNLP>" in incoming or end_time - time.time() < 0:
+            if "\nNLP>" in incoming:
                 break
+            if end_time - time.time() < 0:
+                return dumps({'error': "timed out after %f seconds" %
+                    max_expected_time, 'output': incoming})
         results = parse_parser_results(incoming)
         print "Results", results
         # convert to JSON and return

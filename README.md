@@ -2,16 +2,15 @@
 
 This a Python wrapper for Stanford University's NLP group's Java-based [CoreNLP tools](http://nlp.stanford.edu/software/corenlp.shtml).  It can either be imported as a module or run as an JSON-RPC server. Because it uses many large trained models (requiring 3GB RAM and usually a few minutes loading time), most applications will probably want to run it as a server.
 
-There's not much to this script.
+It requires [pexpect](http://www.noah.org/wiki/pexpect) and uses [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/), which are included. 
 
-It requires `pexpect`.
+There's not much to this script.  I decided to create it after having trouble initializing the JVM through JPypes on two different machines. 
 
-This uses [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/), which are included in this repository.
-
+It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly. I have only tested this on **Core NLP tools version 1.0.2** released 2010-11-12.
 
 ## Download and Usage 
 
-You should have [downloaded](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpacked the tgz file containing Stanford's Core-NLP package.  Then copy all of the python files from this repository into the `stanford-corenlp-2010-11-12` folder.
+You should have [downloaded](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpacked the tgz file containing Stanford's CoreNLP package.  Then copy all of the python files from this repository into the `stanford-corenlp-2010-11-12` folder.
 
 Then, to launch a server:
 
@@ -32,8 +31,6 @@ Download WordNet-3.0 Prolog:  http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.
 -->
 
 ## Questions 
-
-I have only tested this on **Core NLP tools version 1.0.2** released 2010-11-12.
 
 If you think there may be a problem with this wrapper, first ensure you can run the Java program:
 
