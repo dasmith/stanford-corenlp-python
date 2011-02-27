@@ -45,17 +45,23 @@ Produces a list with a parsed dictionary for each sentence:
 
     Result [{"text": "hello world", 
             "tuples": [("amod", "world", "hello")], 
-            "words": {"world": {"NamedEntityTag": O, 
-                                "CharacterOffsetEnd": 11, 
+            "words": {"world": {"NamedEntityTag": "O", 
+                                "CharacterOffsetEnd": "11", 
                                 "Lemma": "world", 
                                 "PartOfSpeech": "NN", 
-                                "CharacterOffsetBegin": 6}, 
-                      "hello": {"NamedEntityTag": O, 
-                                "CharacterOffsetEnd": 5, 
+                                "CharacterOffsetBegin": "6"}, 
+                      "hello": {"NamedEntityTag": "O", 
+                                "CharacterOffsetEnd": "5", 
                                 "Lemma": "hello", 
                                 "PartOfSpeech": "JJ", 
                                 "CharacterOffsetBegin": 0}}}]
 
+
+To use it in a regular script or to edit/debug, load the module instead:
+
+    from server import *
+    corenlp = StanfordCoreNLP() 
+    corenlp.parse("Parse an imperative sentence, damnit!")
 
 <!--
 ## Adding WordNet
