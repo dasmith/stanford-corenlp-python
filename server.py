@@ -38,7 +38,7 @@ def parse_parser_results(text):
         elif state == 2:
             if not line.startswith("[Text="):
                 print line
-                raise Exception("Parse error")
+                raise Exception("Parse error. Could not find [Text=")
             tmp['words'] = {} 
             exp = re.compile('\[([a-zA-Z0-9=. ]+)\]')
             m = exp.findall(line)
@@ -54,8 +54,9 @@ def parse_parser_results(text):
                 tmp['tuples'] = [] 
         if state == 4:
             # dependency parse
-            if not line.startswith(" ") and line.rstrip().endswith(")"):
-                split_entry = re.split("\(|, ", line[:-2]) 
+            line = line.rstrip()
+            if not line.startswith(" ") and line.endswith(")"):
+                split_entry = re.split("\(|, ", line[:-1]) 
                 if len(split_entry) == 3:
                     rel, left, right = map(lambda x: remove_id(x), split_entry)
                     tmp['tuples'].append((rel,left,right))
@@ -119,11 +120,13 @@ class StanfordCoreNLP(object):
         """
         print "Request", text
         print self._server.sendline(text)
-        end_time = time.time() + 2 
+        max_expected_time = 2 + len(text) / 200.0
+        print "Timeout", max_expected_time
+        end_time = time.time() + max_expected_time 
         incoming = ""
         while True: 
-            # Still have time left, so read more data
-            ch = self._server.read_nonblocking (2000, 3)
+            # Time left, read more data
+            ch = self._server.read_nonblocking (2000, max_expected_time)
             freshlen = len(ch)
             time.sleep (0.0001)
             incoming = incoming + ch
