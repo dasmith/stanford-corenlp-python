@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This is a Python interface to Stanford Core NLP tools.
 It can be imported as a module or run as a server.
