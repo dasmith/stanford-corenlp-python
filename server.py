@@ -116,7 +116,6 @@ class StanfordCoreNLP(object):
         pbar.update(2)
         self._server.expect("done.", timeout=600) # Load NER-muc classifier (~60sec)
         self.state = "Loading CoNLL classifier"
-        widgets = ['Loading Models: ', Fraction(), ' ',
         pbar.update(3)
         self._server.expect("done.", timeout=600) # Load CoNLL classifier (~50sec)
         pbar.update(4)
