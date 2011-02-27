@@ -63,7 +63,7 @@ def parse_parser_results(text):
                 split_entry = re.split("\(|, ", line[:-1]) 
                 if len(split_entry) == 3:
                     rel, left, right = map(lambda x: remove_id(x), split_entry)
-                    tmp['tuples'].append(tuple(rel,left,right))
+                    tmp['tuples'].append((rel,left,right))
                     print "\n", rel, left, right
             elif "Coreference links" in line:
                 state = 5
