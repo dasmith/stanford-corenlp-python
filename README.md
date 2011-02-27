@@ -23,11 +23,11 @@ In other words:
 
 Then, to launch a server:
 
-    python server.py
+    python corenlp.py
 
 Optionally, you can specify a host or port:
 
-    python server.py -H 0.0.0.0 -p 3456
+    python corenlp.py -H 0.0.0.0 -p 3456
 
 That will run a public JSON-RPC server on port 3456.
 
@@ -59,7 +59,7 @@ Produces a list with a parsed dictionary for each sentence:
 
 To use it in a regular script or to edit/debug, load the module instead:
 
-    from server import *
+    from corenlp import *
     corenlp = StanfordCoreNLP() 
     corenlp.parse("Parse an imperative sentence, damnit!")
 

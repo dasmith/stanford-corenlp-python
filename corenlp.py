@@ -66,7 +66,6 @@ def parse_parser_results(text):
                 if len(split_entry) == 3:
                     rel, left, right = map(lambda x: remove_id(x), split_entry)
                     tmp['tuples'].append(tuple([rel,left,right]))
-                    print "\n", rel, left, right
             elif "Coreference links" in line:
                 state = 5
         elif state == 5:
@@ -132,9 +131,13 @@ class StanfordCoreNLP(object):
         with one dictionary entry for each parsed sentence, in JSON format.
         """
         print "Request", text
-        print self._server.sendline(text)
-        # How much time should we give the parser to parse it?it
-        #
+        self._server.sendline(text)
+        # How much time should we give the parser to parse it?
+        # the idea here is that you increase the timeout as a 
+        # function of the text's length.
+        
+        # anything longer than 5 seconds requires that you also
+        # increase timeout=5 in jsonrpc.py
         max_expected_time = min(5, 2 + len(text) / 200.0)
         print "Timeout", max_expected_time
         end_time = time.time() + max_expected_time 
@@ -165,11 +168,8 @@ if __name__ == '__main__':
         '-H', '--host', default='127.0.0.1',
         help='Host to serve on (default localhost; 0.0.0.0 to make public)')
     options, args = parser.parse_args()
-    #parser.print_help()
     server = jsonrpc.Server(jsonrpc.JsonRpc20(), 
                             jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))))
-    corenlp = StanfordCoreNLP() 
-    server.register_function(corenlp.parse)
-    #server.register_instance(StanfordCoreNLP())
+    server.register_instance(StanfordCoreNLP())
     print 'Serving on http://%s:%s' % (options.host, options.port)
     server.serve()
