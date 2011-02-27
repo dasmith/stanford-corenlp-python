@@ -44,17 +44,17 @@ Assuming you are running on port 8080, the code in `client.py` shows an example 
 Produces a list with a parsed dictionary for each sentence:
 
     Result [{"text": "hello world", 
-            "tuples": [["amod", "world", "hello"]], 
-            "words": {"world": {"NamedEntityTag": "O", 
-                                "CharacterOffsetEnd": "11", 
+            "tuples": [("amod", "world", "hello")], 
+            "words": {"world": {"NamedEntityTag": O, 
+                                "CharacterOffsetEnd": 11, 
                                 "Lemma": "world", 
                                 "PartOfSpeech": "NN", 
-                                "CharacterOffsetBegin": "6"}, 
-                      "hello": {"NamedEntityTag": "O", 
-                                "CharacterOffsetEnd": "5", 
+                                "CharacterOffsetBegin": 6}, 
+                      "hello": {"NamedEntityTag": O, 
+                                "CharacterOffsetEnd": 5, 
                                 "Lemma": "hello", 
                                 "PartOfSpeech": "JJ", 
-                                "CharacterOffsetBegin": "0"}}}]
+                                "CharacterOffsetBegin": 0}}}]
 
 
 <!--

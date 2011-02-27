@@ -42,11 +42,15 @@ def parse_parser_results(text):
                 raise Exception("Parse error. Could not find [Text=")
             tmp['words'] = {} 
             exp = re.compile('\[([a-zA-Z0-9=. ]+)\]')
-            m = exp.findall(line)
-            for s in m:
-                av = re.split("=| ", s) # attribute-value tuples
-                tmp['words'][av[1]] = dict(zip(*[av[2:][x::2] for x in (0, 1)])) 
-            print tmp
+            matches  = exp.findall(line)
+            for s in matches:
+                # split into attribute-value list 
+                av = re.split("=| ", s) 
+                # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
+                av = zip(*[av[2:][x::2] for x in (0, 1)]) 
+                # save as attr-value dict, convert numbers into ints
+                tmp['words'][av[1]] = dict(map(lambda x: (x[0], x.isdigit(x[1])
+                    and int(x[1]) or x[1]), av))
             state = 3
         elif state == 3:
             # skip over parse tree
@@ -60,7 +64,7 @@ def parse_parser_results(text):
                 split_entry = re.split("\(|, ", line[:-1]) 
                 if len(split_entry) == 3:
                     rel, left, right = map(lambda x: remove_id(x), split_entry)
-                    tmp['tuples'].append((rel,left,right))
+                    tmp['tuples'].append(tuple(rel,left,right))
                     print "\n", rel, left, right
             elif "Coreference links" in line:
                 state = 5
