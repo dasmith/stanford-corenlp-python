@@ -138,7 +138,7 @@ class StanfordCoreNLP(object):
         
         # anything longer than 5 seconds requires that you also
         # increase timeout=5 in jsonrpc.py
-        max_expected_time = min(5, 2 + len(text) / 200.0)
+        max_expected_time = min(6, 3 + len(text) / 20.0)
         print "Timeout", max_expected_time
         end_time = time.time() + max_expected_time 
         incoming = ""
