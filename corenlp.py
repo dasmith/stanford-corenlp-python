@@ -50,7 +50,7 @@ def parse_parser_results(text):
                 av = re.split("=| ", s) 
                 # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
                 # and save as attr-value dict, convert numbers into ints
-                tmp['words'].append((av[1], dict(zip(*[av[2:][x::2] for x in (0, 1)])))
+                tmp['words'].append((av[1], dict(zip(*[av[2:][x::2] for x in (0, 1)]))))
                 # tried to convert digits to ints instead of strings, but
                 # it seems the results of this can't be serialized into JSON?
                 # av = zip(*[av[2:][x::2] for x in (0, 1)]) 
