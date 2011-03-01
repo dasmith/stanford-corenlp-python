@@ -8,13 +8,15 @@ For more details:
 
 By Dustin Smith, 2011
 """
-import pexpect
 from simplejson import loads, dumps
 import optparse
 import sys
 import os
 import time
 import re
+
+import pexpect
+
 import jsonrpc
 from progressbar import *
 
@@ -158,6 +160,39 @@ class StanfordCoreNLP(object):
         # convert to JSON and return
         return dumps(results)
 
+    def parse_imperative(self, text):
+        """
+        This is kind of hacky way to deal with imperative statements.
+
+        Takes an imperative string, adds a personal pronoun to the parse,
+        and then removes it in the resulting parse.
+        
+        e.g. "open the door" gets parsed as "you open the door"
+
+        """
+        used_pronoun = None
+        pronouns = ["you","he", "she","i"]
+        for p in pronouns:
+            if p not in text:
+                used_pronoun = p
+                break
+
+        if not used_pronoun:
+            return self.parse(text)
+    
+        text = used_pronoun+" "+text.lstrip()
+        first_word = ""
+        if len(text.split()) > 1:
+            first_word = text.split()[1]
+        result = self.parse(text)
+        if result[0].has_key('text'):
+            result[0]['text'] = text
+            result[0]['tuples'] = ifilter(lambda x: x[1] == used_pronoun or x[2]
+                    == used_pronoun, result[0]['tuples'])
+            del result[0]['words'][used_pronoun] 
+            return result
+        else:
+            return result
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(usage="%prog [OPTIONS]")
