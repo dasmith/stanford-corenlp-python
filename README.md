@@ -43,25 +43,25 @@ Assuming you are running on port 8080, the code in `client.py` shows an example 
 
 Produces a list with a parsed dictionary for each sentence:
 
-    Result [{"text": "hello world", 
-            "tuples": [("amod", "world", "hello")], 
-            "words": {"world": {"NamedEntityTag": "O", 
-                                "CharacterOffsetEnd": "11", 
-                                "Lemma": "world", 
-                                "PartOfSpeech": "NN", 
-                                "CharacterOffsetBegin": "6"}, 
-                      "hello": {"NamedEntityTag": "O", 
-                                "CharacterOffsetEnd": "5", 
-                                "Lemma": "hello", 
-                                "PartOfSpeech": "JJ", 
-                                "CharacterOffsetBegin": "0"}}}]
-
-
-To use it in a regular script or to edit/debug, load the module instead:
+    Result [{'text': 'hello world', 
+             'tuples': [['amod', 'world', 'hello']], 
+             'words': [['hello', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': '5', 'CharacterOffsetBegin': '0', 'PartOfSpeech': 'JJ', 'Lemma': 'hello'}], 
+                       ['world', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': '11', 'CharacterOffsetBegin': '6', 'PartOfSpeech': 'NN', 'Lemma': 'world'}]]}]
+    
+To use it in a regular script or to edit/debug (since errors via RPC are opaque), load the module instead:
 
     from corenlp import *
     corenlp = StanfordCoreNLP() 
     corenlp.parse("Parse an imperative sentence, damnit!")
+
+I also added a function called **parse_imperative** that introduces a dummy pronoun to overcome the problems that dependency parsers have with imperative statements.
+
+    corenlp.parse("stop smoking")
+    >> [{"text": "stop smoking", "tuples": [["nn", "smoking", "stop"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": "4", "Lemma": "stop", "PartOfSpeech": "NN", "CharacterOffsetBegin": "0"}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": "12", "Lemma": "smoking", "PartOfSpeech": "NN", "CharacterOffsetBegin": "5"}]]}]
+
+    corenlp.parse_imperative("stop smoking")
+    >> [{"text": "stop smoking", "tuples": [["xcomp", "stop", "smoking"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": "8", "Lemma": "stop", "PartOfSpeech": "VBP", "CharacterOffsetBegin": "4"}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": "16", "Lemma": "smoke", "PartOfSpeech": "VBG", "CharacterOffsetBegin": "9"}]]}]
+
 
 <!--
 ## Adding WordNet
@@ -74,3 +74,11 @@ Download WordNet-3.0 Prolog:  http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.
 If you think there may be a problem with this wrapper, first ensure you can run the Java program:
 
     java -cp stanford-corenlp-2010-11-12.jar:stanford-corenlp-models-2010-11-06.jar:xom-1.2.6.jar:xom.jar:jgraph.jar:jgrapht.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
+
+
+#  TODO
+
+  - Parse and resolve coreferences
+  - Mutex on parser
+  - have pyexpect eat up dead chars after timeout (before next parse after a timeout)
+
