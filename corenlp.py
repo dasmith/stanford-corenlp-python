@@ -50,8 +50,9 @@ def parse_parser_results(text):
                 av = re.split("=| ", s) 
                 # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
                 # and save as attr-value dict, convert numbers into ints
-                tmp['words'][av[1]] = dict(zip(*[av[2:][x::2] for x in (0, 1)]))
-                # the results of this can't be serialized into JSON?
+                tmp['words'].append((av[1], dict(zip(*[av[2:][x::2] for x in (0, 1)])))
+                # tried to convert digits to ints instead of strings, but
+                # it seems the results of this can't be serialized into JSON?
                 # av = zip(*[av[2:][x::2] for x in (0, 1)]) 
                 # tmp['words'][av[1]] = dict(map(lambda x: (x[0], x[1].isdigit() and int(x[1]) or x[1]), av))
             state = 3
@@ -191,11 +192,11 @@ class StanfordCoreNLP(object):
         if not used_pronoun:
             return self.parse(text)
     
-        text = used_pronoun+" "+text.lstrip()
+        new_text = used_pronoun+" "+text.lstrip()
         first_word = ""
-        if len(text.split()) > 1:
-            first_word = text.split()[1]
-        result = self._parse(text)
+        if len(text.split()) > 0:
+            first_word = text.split()[0]
+        result = self._parse(new_text)
         if result[0].has_key('text'):
             result[0]['text'] = text
             result[0]['tuples'] = filter(lambda x: not (x[1] == used_pronoun or x[2]
