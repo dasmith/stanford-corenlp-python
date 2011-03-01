@@ -126,13 +126,13 @@ class StanfordCoreNLP(object):
         print "NLP tools loaded."
         #print self._server.before
 
-    def parse(self, text):
-        """ 
-        This function takes a text string, sends it to the Stanford parser,
-        reads in the result, parses the results and returns a list
-        with one dictionary entry for each parsed sentence, in JSON format.
+    def _parse(self, text):
         """
-        print "Request", text
+        This is the core interaction with the parser. 
+
+        It returns a Python data-structure, while the parse()
+        function returns a json object
+        """
         self._server.sendline(text)
         # How much time should we give the parser to parse it?
         # the idea here is that you increase the timeout as a 
@@ -153,11 +153,22 @@ class StanfordCoreNLP(object):
             if "\nNLP>" in incoming:
                 break
             if end_time - time.time() < 0:
-                return dumps({'error': "timed out after %f seconds" %
-                    max_expected_time, 'output': incoming})
+                return {'error': "timed out after %f seconds" % max_expected_time, 
+                        'input': text,
+                        'output': incoming}
         results = parse_parser_results(incoming)
-        print "Results", results
+        return results
+
+    def parse(self, text):
+        """ 
+        This function takes a text string, sends it to the Stanford parser,
+        reads in the result, parses the results and returns a list
+        with one dictionary entry for each parsed sentence, in JSON format.
+        """
         # convert to JSON and return
+        print "Request", text
+        results = self._parse(text)
+        print "Results", results
         return dumps(results)
 
     def parse_imperative(self, text):
@@ -184,15 +195,15 @@ class StanfordCoreNLP(object):
         first_word = ""
         if len(text.split()) > 1:
             first_word = text.split()[1]
-        result = self.parse(text)
+        result = self._parse(text)
         if result[0].has_key('text'):
             result[0]['text'] = text
             result[0]['tuples'] = ifilter(lambda x: x[1] == used_pronoun or x[2]
                     == used_pronoun, result[0]['tuples'])
             del result[0]['words'][used_pronoun] 
-            return result
+            return dumps(result)
         else:
-            return result
+            return dumps(result)
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(usage="%prog [OPTIONS]")
@@ -207,5 +218,6 @@ if __name__ == '__main__':
                             jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))))
     nlp = StanfordCoreNLP()
     server.register_function(nlp.parse)
+    server.register_function(nlp.parse_imperative)
     print 'Serving on http://%s:%s' % (options.host, options.port)
     server.serve()
