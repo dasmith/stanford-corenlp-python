@@ -26,6 +26,11 @@ def remove_id(word):
     return word.count("-") == 0 and word or word[0:word.rindex("-")]
 
 def parse_parser_results(text):
+    """ This is the nasty bit of code to interact with the command-line
+    interface of the CoreNLP tools.  Takes a string of the parser results
+    and then returns a Python list of dictionaries, one for each parsed
+    sentence.
+    """
     state = 0
     tmp = {}
     results = []
@@ -79,7 +84,11 @@ def parse_parser_results(text):
     return results
 
 class StanfordCoreNLP(object):
-    
+    """ 
+    Command-line interaction with Stanford's CoreNLP java utilities.
+
+    Can be run as a JSON-RPC server or imported as a module.
+    """
     def __init__(self):	
         """
         Checks the location of the jar files.
@@ -176,7 +185,7 @@ class StanfordCoreNLP(object):
         """
         This is a hacky way to deal with imperative statements.
 
-        It an imperative, adds a personal pronoun, parses it,
+        Takes an imperative, adds a personal pronoun, parses it,
         and then removes it in the resulting parse.
         
         e.g. "open the door" gets parsed as "you open the door"

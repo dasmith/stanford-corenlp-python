@@ -34,12 +34,12 @@ That will run a public JSON-RPC server on port 3456.
 Assuming you are running on port 8080, the code in `client.py` shows an example parse: 
 
     import jsonrpc
+    from simplejson import loads
     server = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
             jsonrpc.TransportTcpIp(addr=("127.0.0.1", 8080)))
 
-    result = server.parse("hello world")
+    result = loads(server.parse("hello world"))
     print "Result", result
-
 
 Produces a list with a parsed dictionary for each sentence:
 
