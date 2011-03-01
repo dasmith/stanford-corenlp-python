@@ -14,7 +14,6 @@ import sys
 import os
 import time
 import re
-from itertools import ifilterfalse
 
 import pexpect
 
@@ -199,8 +198,8 @@ class StanfordCoreNLP(object):
         result = self._parse(text)
         if result[0].has_key('text'):
             result[0]['text'] = text
-            result[0]['tuples'] = ifilterfalse(lambda x: x[1] == used_pronoun or x[2]
-                    == used_pronoun, result[0]['tuples'])
+            result[0]['tuples'] = filter(lambda x: not (x[1] == used_pronoun or x[2]
+                    == used_pronoun), result[0]['tuples'])
             del result[0]['words'][used_pronoun] 
             return dumps(result)
         else:
