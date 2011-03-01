@@ -201,8 +201,7 @@ class StanfordCoreNLP(object):
             result[0]['text'] = text
             result[0]['tuples'] = filter(lambda x: not (x[1] == used_pronoun or x[2]
                     == used_pronoun), result[0]['tuples'])
-            result[0]['words'] = filter(lambda x: not x.has_key(used_pronoun),
-                    result[0]['words'])
+            result[0]['words'] = result[0]['words'][1:]
             return dumps(result)
         else:
             # if there's a timeout error, just return it.
