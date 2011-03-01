@@ -127,12 +127,12 @@ class StanfordCoreNLP(object):
         print "NLP tools loaded."
         #print self._server.before
 
-    def _parse(self, text):
+    def _parse(self, text, verbose=True):
         """
         This is the core interaction with the parser. 
 
         It returns a Python data-structure, while the parse()
-        function returns a json object
+        function returns a JSON object
         """
         self._server.sendline(text)
         # How much time should we give the parser to parse it?
@@ -142,7 +142,7 @@ class StanfordCoreNLP(object):
         # anything longer than 5 seconds requires that you also
         # increase timeout=5 in jsonrpc.py
         max_expected_time = min(6, 3 + len(text) / 20.0)
-        print "Timeout", max_expected_time
+        if verbose: print "Timeout", max_expected_time
         end_time = time.time() + max_expected_time 
         incoming = ""
         while True: 
@@ -160,50 +160,52 @@ class StanfordCoreNLP(object):
         results = parse_parser_results(incoming)
         return results
 
-    def parse(self, text):
+    def parse(self, text, verbose=True):
         """ 
         This function takes a text string, sends it to the Stanford parser,
         reads in the result, parses the results and returns a list
         with one dictionary entry for each parsed sentence, in JSON format.
         """
         # convert to JSON and return
-        print "Request", text
-        results = self._parse(text)
-        print "Results", results
+        if verbose: print "Request", text
+        results = self._parse(text, verbose)
+        if verbose: print "Results", results
         return dumps(results)
 
-    def parse_imperative(self, text):
+    def parse_imperative(self, text, verbose=True):
         """
-        This is kind of hacky way to deal with imperative statements.
+        This is a hacky way to deal with imperative statements.
 
-        Takes an imperative string, adds a personal pronoun to the parse,
+        It an imperative, adds a personal pronoun, parses it,
         and then removes it in the resulting parse.
         
         e.g. "open the door" gets parsed as "you open the door"
-
         """
+        # find a pronoun that's not in the string already.
         used_pronoun = None
         pronouns = ["you","he", "she","i"]
         for p in pronouns:
             if p not in text:
                 used_pronoun = p
                 break
-
+        # if you can't find one, regress to original parse
         if not used_pronoun:
-            return self.parse(text)
-    
+            return self.parse(text, verbose)
+  
+        # create text with pronoun and parse it
         new_text = used_pronoun+" "+text.lstrip()
-        first_word = ""
-        if len(text.split()) > 0:
-            first_word = text.split()[0]
-        result = self._parse(new_text)
+        result = self._parse(new_text, verbose)
+
+        # remove the dummy pronoun
         if result[0].has_key('text'):
             result[0]['text'] = text
             result[0]['tuples'] = filter(lambda x: not (x[1] == used_pronoun or x[2]
                     == used_pronoun), result[0]['tuples'])
-            del result[0]['words'][used_pronoun] 
+            result[0]['words'] = filter(lambda x: not x.has_key(used_pronoun),
+                    result[0]['words'])
             return dumps(result)
         else:
+            # if there's a timeout error, just return it.
             return dumps(result)
 
 if __name__ == '__main__':
