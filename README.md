@@ -4,7 +4,7 @@ This a Python wrapper for Stanford University's NLP group's Java-based [CoreNLP 
 
 It requires [pexpect](http://www.noah.org/wiki/pexpect).  Included dependencies are [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
 
-There's not much to this script.  I decided to create it after having trouble initializing a JVM using JPypes on two different machines. 
+There's not much to this script.  I decided to create it after facing difficulties using the alternative ways to get Python to talk to Stanford's dependency parser.  First, I had trouble initializing a JVM using JPypes on two different machines with [stanford-parser-python](http://projects.csail.mit.edu/spatial/Stanford_Parser), and Jython's lack of support for the Python modules I needed prevented a [Jython solution](http://blog.gnucom.cc/2010/using-the-stanford-parser-with-jython/). 
 
 It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly. I have only tested this on **Core NLP tools version 1.0.2** released 2010-11-12.
 
