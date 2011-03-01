@@ -42,7 +42,7 @@ def parse_parser_results(text):
             if not line.startswith("[Text="):
                 print line
                 raise Exception("Parse error. Could not find [Text=")
-            tmp['words'] = {} 
+            tmp['words'] = [] 
             exp = re.compile('\[([a-zA-Z0-9=. ]+)\]')
             matches  = exp.findall(line)
             for s in matches:
