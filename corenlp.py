@@ -143,6 +143,14 @@ class StanfordCoreNLP(object):
         It returns a Python data-structure, while the parse()
         function returns a JSON object
         """
+        while True:
+            try:
+                ch = self._server.read_nonblocking (2000, 1)
+            except pexpect.TIMEOUT:
+                break
+
+        # clean up anything leftover
+
         self._server.sendline(text)
         # How much time should we give the parser to parse it?
         # the idea here is that you increase the timeout as a 
@@ -156,16 +164,23 @@ class StanfordCoreNLP(object):
         incoming = ""
         while True: 
             # Time left, read more data
-            ch = self._server.read_nonblocking (2000, max_expected_time)
-            freshlen = len(ch)
-            time.sleep (0.0001)
-            incoming = incoming + ch
-            if "\nNLP>" in incoming:
+            try:
+                ch = self._server.read_nonblocking (2000, 1)
+                freshlen = len(ch)
+                time.sleep (0.0001)
+                incoming = incoming + ch
+                if "\nNLP>" in incoming:
+                    break
+            except pexpect.TIMEOUT:
+                print "Timeout" 
+                if end_time - time.time() < 0:
+                    return {'error': "timed out after %f seconds" % max_expected_time, 
+                            'input': text,
+                            'output': incoming}
+                else:
+                    continue
+            except pexpect.EOF:
                 break
-            if end_time - time.time() < 0:
-                return {'error': "timed out after %f seconds" % max_expected_time, 
-                        'input': text,
-                        'output': incoming}
         results = parse_parser_results(incoming)
         return results
 
