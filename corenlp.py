@@ -143,13 +143,12 @@ class StanfordCoreNLP(object):
         It returns a Python data-structure, while the parse()
         function returns a JSON object
         """
+        # clean up anything leftover
         while True:
             try:
                 ch = self._server.read_nonblocking (2000, 1)
             except pexpect.TIMEOUT:
                 break
-
-        # clean up anything leftover
 
         self._server.sendline(text)
         # How much time should we give the parser to parse it?

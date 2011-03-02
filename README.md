@@ -54,7 +54,7 @@ To use it in a regular script or to edit/debug (since errors via RPC are opaque)
     corenlp = StanfordCoreNLP() 
     corenlp.parse("Parse an imperative sentence, damnit!")
 
-I also added a function called **parse_imperative** that introduces a dummy pronoun to overcome the problems that dependency parsers have with imperative statements.
+I added a function called `parse_imperative` that introduces a dummy pronoun to overcome the problems that dependency parsers have with imperative statements.
 
     corenlp.parse("stop smoking")
     >> [{"text": "stop smoking", "tuples": [["nn", "smoking", "stop"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": "4", "Lemma": "stop", "PartOfSpeech": "NN", "CharacterOffsetBegin": "0"}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": "12", "Lemma": "smoking", "PartOfSpeech": "NN", "CharacterOffsetBegin": "5"}]]}]
@@ -62,6 +62,7 @@ I also added a function called **parse_imperative** that introduces a dummy pron
     corenlp.parse_imperative("stop smoking")
     >> [{"text": "stop smoking", "tuples": [["xcomp", "stop", "smoking"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": "8", "Lemma": "stop", "PartOfSpeech": "VBP", "CharacterOffsetBegin": "4"}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": "16", "Lemma": "smoke", "PartOfSpeech": "VBG", "CharacterOffsetBegin": "9"}]]}]
 
+Only with the dummy pronoun does the parser correctly identify the first word, *stop*, to be a verb.
 
 <!--
 ## Adding WordNet
@@ -78,7 +79,7 @@ If you think there may be a problem with this wrapper, first ensure you can run 
 
 #  TODO
 
+  - Adjust Char Offsets for `parse_imperative` to account for dummy pronoun.
   - Parse and resolve coreferences
   - Mutex on parser
-  - have pyexpect eat up dead chars after timeout (before next parse after a timeout)
 
