@@ -100,20 +100,25 @@ class StanfordCoreNLP(object):
                 "jgraph.jar",
                 "jgrapht.jar",
                 "xom.jar"]
-
+       
+        # if CoreNLP libraries are in a different directory,
+        # change the corenlp_path variable to point to them
+        corenlp_path = ""
+        java_path = "java"
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
-        javapath = "java"
         # include the properties file, so you can change defaults
         # but any changes in output format will break parse_parser_results() 
         props = "-props default.properties" 
 
+        # add and check classpaths
+        jars = [corenlp_path + jar for jar in jars]
         for jar in jars:
             if not os.path.exists(jar):
                 print "Error! Cannot locate %s" % jar
                 sys.exit(1)
         
         # spawn the server
-        self._server = pexpect.spawn("%s -Xmx3g -cp %s %s %s" % (javapath, ':'.join(jars), classname, props))
+        self._server = pexpect.spawn("%s -Xmx3g -cp %s %s %s" % (java_path, ':'.join(jars), classname, props))
         
         print "Starting the Stanford Core NLP parser."
         self.state = "plays hard to get, smiles from time to time"
