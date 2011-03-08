@@ -47,8 +47,8 @@ That returns a list containing a dictionary for each sentence, with keys `text`,
 
     Result [{'text': 'hello world', 
              'tuples': [['amod', 'world', 'hello']], 
-             'words': [['hello', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': '5', 'CharacterOffsetBegin': '0', 'PartOfSpeech': 'JJ', 'Lemma': 'hello'}], 
-                       ['world', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': '11', 'CharacterOffsetBegin': '6', 'PartOfSpeech': 'NN', 'Lemma': 'world'}]]}]
+             'words': [['hello', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': 5, 'CharacterOffsetBegin': 0, 'PartOfSpeech': 'JJ', 'Lemma': 'hello'}], 
+                       ['world', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': 11, 'CharacterOffsetBegin': 6, 'PartOfSpeech': 'NN', 'Lemma': 'world'}]]}]
     
 To use it in a regular script or to edit/debug it (because errors via RPC are opaque), load the module instead:
 
