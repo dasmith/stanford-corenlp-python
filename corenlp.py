@@ -55,11 +55,17 @@ def parse_parser_results(text):
                 av = re.split("=| ", s) 
                 # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
                 # and save as attr-value dict, convert numbers into ints
-                tmp['words'].append((av[1], dict(zip(*[av[2:][x::2] for x in (0, 1)]))))
+                #tmp['words'].append((av[1], dict(zip(*[av[2:][x::2] for x in (0, 1)]))))
                 # tried to convert digits to ints instead of strings, but
                 # it seems the results of this can't be serialized into JSON?
-                # av = zip(*[av[2:][x::2] for x in (0, 1)]) 
-                # tmp['words'][av[1]] = dict(map(lambda x: (x[0], x[1].isdigit() and int(x[1]) or x[1]), av))
+                word = av[1]
+                attributes = {}
+                for a,v in zip(*[av[2:][x::2] for x in (0, 1)]):
+                    if v.isdigit():
+                        attributes[a] = int(v)
+                    else:
+                        attributes[a] = v
+                tmp['words'].append((word, attributes))
             state = 3
         elif state == 3:
             # skip over parse tree
@@ -72,12 +78,22 @@ def parse_parser_results(text):
             if not line.startswith(" ") and line.endswith(")"):
                 split_entry = re.split("\(|, ", line[:-1]) 
                 if len(split_entry) == 3:
-                    rel, left, right = map(lambda x: remove_id(x), split_entry)
+                    rel, left, right = map(lambda x: x, split_entry)
                     tmp['tuples'].append(tuple([rel,left,right]))
             elif "Coreference links" in line:
                 state = 5
         elif state == 5:
-            # coreference links.  Not yet implemented
+            crexp = re.compile('\s(\d*)\s(\d*)\s\-\>\s(\d*)\s(\d*), that is')
+            matches = crexp.findall(line)
+            for src_i, src_pos, sink_i, sink_pos in matches:
+                print "COREF MATCH", src_i, sink_i
+                src = tmp['words'][int(src_pos)-1][0]
+                sink = tmp['words'][int(sink_pos)-1][0]
+                if tmp.has_key('coref'):
+                    tmp['coref'].append((src, sink))
+                else:
+                    tmp['coref'] = [(src, sink)]
+         
             print "CR", line
     if len(tmp.keys()) != 0:
         results.append(tmp)
@@ -191,8 +207,9 @@ class StanfordCoreNLP(object):
     def _debug_parse(self, text, verbose=True):
         print "DEBUG PARSE -- "
         rf = open("test.out", 'r')
-        results = rf.readlines()
+        incoming = ''.join(rf.readlines())
         rf.close()
+        results = parse_parser_results(incoming)
         return results
 
     def parse(self, text, verbose=True):
@@ -220,7 +237,12 @@ class StanfordCoreNLP(object):
         used_pronoun = None
         pronouns = ["you","he", "she","i"]
         for p in pronouns:
+            if text.startswith(p+" "):
+                # it's already an imperative!
+                used_pronoun = None
+                break
             if p not in text:
+                # found one not in there already
                 used_pronoun = p
                 break
         # if you can't find one, regress to original parse
@@ -229,18 +251,30 @@ class StanfordCoreNLP(object):
   
         # create text with pronoun and parse it
         new_text = used_pronoun+" "+text.lstrip()
-        result = self._parse(new_text, verbose)
+        result = self._debug_parse(new_text, verbose)
+        
+        if len(result) != 1:
+            print "Non-imperative sentence?  Multiple sentences found."
 
         # remove the dummy pronoun
+        used_pronoun_offset = len(used_pronoun)+1
         if result[0].has_key('text'):
             result[0]['text'] = text
             result[0]['tuples'] = filter(lambda x: not (x[1] == used_pronoun or x[2]
                     == used_pronoun), result[0]['tuples'])
             result[0]['words'] = result[0]['words'][1:]
+            # account for offset
+            ct = 0
+            for word, av in result[0]['words']:
+                for a,v in av.items():
+                    if a.startswith("CharacterOffset"):
+                        result[0]['words'][ct][1][a] = v-used_pronoun_offset
+                ct += 1
             return dumps(result)
         else:
             # if there's a timeout error, just return it.
             return dumps(result)
+
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(usage="%prog [OPTIONS]")
