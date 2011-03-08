@@ -251,7 +251,7 @@ class StanfordCoreNLP(object):
   
         # create text with pronoun and parse it
         new_text = used_pronoun+" "+text.lstrip()
-        result = self._debug_parse(new_text, verbose)
+        result = self._parse(new_text, verbose)
         
         if len(result) != 1:
             print "Non-imperative sentence?  Multiple sentences found."
