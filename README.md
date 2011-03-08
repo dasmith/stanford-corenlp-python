@@ -61,10 +61,10 @@ To use it in a regular script or to edit/debug it (because errors via RPC are op
 I added a function called `parse_imperative` that introduces a dummy pronoun to overcome the problems that dependency parsers have with **imperative sentences**, dealing with only one at a time. 
 
     corenlp.parse("stop smoking")
-    >> [{"text": "stop smoking", "tuples": [["nn", "smoking", "stop"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": "4", "Lemma": "stop", "PartOfSpeech": "NN", "CharacterOffsetBegin": "0"}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": "12", "Lemma": "smoking", "PartOfSpeech": "NN", "CharacterOffsetBegin": "5"}]]}]
+    >> [{"text": "stop smoking", "tuples": [["nn", "smoking", "stop"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": 4, "Lemma": "stop", "PartOfSpeech": "NN", "CharacterOffsetBegin": 0}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": 12, "Lemma": "smoking", "PartOfSpeech": "NN", "CharacterOffsetBegin": 5}]]}]
 
     corenlp.parse_imperative("stop smoking")
-    >> [{"text": "stop smoking", "tuples": [["xcomp", "stop", "smoking"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": "8", "Lemma": "stop", "PartOfSpeech": "VBP", "CharacterOffsetBegin": "4"}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": "16", "Lemma": "smoke", "PartOfSpeech": "VBG", "CharacterOffsetBegin": "9"}]]}]
+    >> [{"text": "stop smoking", "tuples": [["xcomp", "stop", "smoking"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": 8, "Lemma": "stop", "PartOfSpeech": "VBP", "CharacterOffsetBegin": 4}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": 16, "Lemma": "smoke", "PartOfSpeech": "VBG", "CharacterOffsetBegin": 9}]]}]
 
 Only with the dummy pronoun does the parser correctly identify the first word, *stop*, to be a verb.
 
@@ -73,7 +73,11 @@ Only with the dummy pronoun does the parser correctly identify the first word, *
 <!--
 ## Adding WordNet
 
+Note: wordnet doesn't seem to be supported using this approach.  Looks like you'll need Java.
+
 Download WordNet-3.0 Prolog:  http://wordnetcode.princeton.edu/3.0/WNprolog-3.0.tar.gz
+tar xvfz WNprolog-3.0.tar.gz 
+
 -->
 
 ## Questions 
