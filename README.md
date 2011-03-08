@@ -56,7 +56,9 @@ To use it in a regular script or to edit/debug it (because errors via RPC are op
     corenlp = StanfordCoreNLP()  # wait a few minutes...
     corenlp.parse("Parse an imperative sentence, damnit!")
 
-I added a function called `parse_imperative` that introduces a dummy pronoun to overcome the problems that dependency parsers have with imperative sentences, dealing with only one at a time. 
+### Parsing Imperative Sentences
+
+I added a function called `parse_imperative` that introduces a dummy pronoun to overcome the problems that dependency parsers have with **imperative sentences**, dealing with only one at a time. 
 
     corenlp.parse("stop smoking")
     >> [{"text": "stop smoking", "tuples": [["nn", "smoking", "stop"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": "4", "Lemma": "stop", "PartOfSpeech": "NN", "CharacterOffsetBegin": "0"}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": "12", "Lemma": "smoking", "PartOfSpeech": "NN", "CharacterOffsetBegin": "5"}]]}]
