@@ -6,6 +6,5 @@ server = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
 # call a remote-procedure 
 result = loads(server.parse("hello world"))
 print "Result", result
-~                         
 
 

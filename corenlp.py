@@ -188,6 +188,13 @@ class StanfordCoreNLP(object):
         results = parse_parser_results(incoming)
         return results
 
+    def _debug_parse(self, text, verbose=True):
+        print "DEBUG PARSE -- "
+        rf = open("test.out", 'r')
+        results = rf.readlines()
+        rf.close()
+        return results
+
     def parse(self, text, verbose=True):
         """ 
         This function takes a text string, sends it to the Stanford parser,
