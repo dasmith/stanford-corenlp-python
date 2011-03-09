@@ -86,6 +86,10 @@ def parse_parser_results(text):
             crexp = re.compile('\s(\d*)\s(\d*)\s\-\>\s(\d*)\s(\d*), that is')
             matches = crexp.findall(line)
             for src_i, src_pos, sink_i, sink_pos in matches:
+                # TODO: src_i and sink_i correspond to the sentences.
+                # this was built for single sentences, and thus ignores
+                # the sentence number.  Should be fixed, but would require
+                # restructuring the entire output.
                 print "COREF MATCH", src_i, sink_i
                 src = tmp['words'][int(src_pos)-1][0]
                 sink = tmp['words'][int(sink_pos)-1][0]
@@ -167,7 +171,10 @@ class StanfordCoreNLP(object):
         # clean up anything leftover
         while True:
             try:
-                ch = self._server.read_nonblocking (2000, 1)
+                # the second argument is a forced delay (in seconds)
+                # EVERY parse must incur.  
+                # TODO make this as small as possible.
+                ch = self._server.read_nonblocking (4000, 0.3)
             except pexpect.TIMEOUT:
                 break
 
@@ -178,7 +185,7 @@ class StanfordCoreNLP(object):
         
         # anything longer than 5 seconds requires that you also
         # increase timeout=5 in jsonrpc.py
-        max_expected_time = min(6, 3 + len(text) / 20.0)
+        max_expected_time = min(5, 3 + len(text) / 20.0)
         if verbose: print "Timeout", max_expected_time
         end_time = time.time() + max_expected_time 
         incoming = ""
