@@ -87,7 +87,11 @@ If pexpect timesout while loading models, check to make sure you have enough mem
 
     java -cp stanford-corenlp-2010-11-12.jar:stanford-corenlp-models-2010-11-06.jar:xom-1.2.6.jar:xom.jar:jgraph.jar:jgrapht.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
 
+<<<<<<< HEAD
 You can reach me, Dustin Smith, by sending a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin)).
+=======
+You can reach me, Dustin Smith, by sending a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin).
+>>>>>>> 1297486a42f1ff858073c5411ec065b4d67419eb
 
 #  TODO
  
