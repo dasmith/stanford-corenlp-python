@@ -384,7 +384,6 @@ class JsonRpc10:
         if not isinstance(data["params"], (list, tuple)):
             raise RPCInvalidRPC("""Invalid Request, "params" must be an array.""")
         if len(data) != 3:          raise RPCInvalidRPC("""Invalid Request, additional fields found.""")
-
         # notification / request
         if data["id"] is None:
             return data["method"], data["params"]               #notification
@@ -901,7 +900,6 @@ class ServerProxy:
             req_str  = self.__data_serializer.dumps_request( methodname, args, id )
         else:
             req_str  = self.__data_serializer.dumps_request( methodname, kwargs, id )
-
         try:
             resp_str = self.__transport.sendrecv( req_str )
         except Exception,err:

@@ -82,11 +82,12 @@ tar xvfz WNprolog-3.0.tar.gz
 
 ## Questions 
 
-If you think there may be a problem with this wrapper, first ensure you can run the Java program:
+**Stanford CoreNLP tools require a large amount of free memory**.  Java 5+ uses about 50% more RAM on 64-bit machines than 32-bit machines.  32-bit machine users can lower the memory requirements by changing `-Xmx3g` to `-Xmx2g` or even less.
+If pexpect timesout while loading models, check to make sure you have enough memory and can run the server alone without your kernel killing the java process:
 
     java -cp stanford-corenlp-2010-11-12.jar:stanford-corenlp-models-2010-11-06.jar:xom-1.2.6.jar:xom.jar:jgraph.jar:jgrapht.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
 
-Then, send me (Dustin Smith) a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin).
+You can reach me, Dustin Smith, by sending a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin).
 
 #  TODO
  
