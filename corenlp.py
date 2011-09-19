@@ -115,10 +115,9 @@ class StanfordCoreNLP(object):
         Spawns the server as a process.
         """
 
-        jars = ["stanford-corenlp-2010-11-12.jar", 
-                "stanford-corenlp-models-2010-11-06.jar",
-                "jgraph.jar",
-                "jgrapht.jar",
+        jars = ["stanford-corenlp-2011-09-16.jar", 
+                "stanford-corenlp-2011-09-14-models.jar",
+                "joda-time.jar",
                 "xom.jar"]
        
         # if CoreNLP libraries are in a different directory,

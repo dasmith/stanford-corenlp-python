@@ -1,4 +1,4 @@
-# Python interface to Stanford Core NLP tools
+# Python interface to Stanford Core NLP tools v1.2.0
 
 This a Python wrapper for Stanford University's NLP group's Java-based [CoreNLP tools](http://nlp.stanford.edu/software/corenlp.shtml).  It can either be imported as a module or run as an JSON-RPC server. Because it uses many large trained models (requiring 3GB RAM on 64-bit machines and usually a few minutes loading time), most applications will probably want to run it as a server.
 
@@ -8,18 +8,18 @@ There's not much to this script.  I decided to create it after having problems u
 First the JPypes approach used in [stanford-parser-python](http://projects.csail.mit.edu/spatial/Stanford_Parser) had trouble initializing a JVM on two separate computers.  Next, I discovered I could not use a 
 [Jython solution](http://blog.gnucom.cc/2010/using-the-stanford-parser-with-jython/) because the Python modules I needed did not work in Jython.
 
-It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly. I have only tested this on **Core NLP tools version 1.0.2** released 2010-11-12.
+It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly. I have only tested this on **Core NLP tools version 1.2.0** released 2011-09-16.
 
 ## Download and Usage 
 
-You should have [downloaded](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpacked the tgz file containing Stanford's CoreNLP package.  Then copy all of the python files from this repository into the `stanford-corenlp-2010-11-12` folder.
+You should have [downloaded](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpacked the tgz file containing Stanford's CoreNLP package.  Then copy all of the python files from this repository into the `stanford-corenlp-2011-09-16` folder.
 
 In other words: 
 
     sudo pip install pexpect
-    wget http://nlp.stanford.edu/software/stanford-corenlp-v1.0.2.tgz
-    tar xvfz stanford-corenlp-v1.0.2.tgz
-    cd stanford-corenlp-2010-11-12
+    wget http://nlp.stanford.edu/software/stanford-corenlp-v1.2.0.tgz
+    tar xvfz stanford-corenlp-v1.2.0.tgz
+    cd stanford-corenlp-2011-09-16
     git clone git://github.com/dasmith/stanford-corenlp-python.git
     mv stanford-corenlp-python/* .
 
@@ -85,7 +85,7 @@ tar xvfz WNprolog-3.0.tar.gz
 **Stanford CoreNLP tools require a large amount of free memory**.  Java 5+ uses about 50% more RAM on 64-bit machines than 32-bit machines.  32-bit machine users can lower the memory requirements by changing `-Xmx3g` to `-Xmx2g` or even less.
 If pexpect timesout while loading models, check to make sure you have enough memory and can run the server alone without your kernel killing the java process:
 
-    java -cp stanford-corenlp-2010-11-12.jar:stanford-corenlp-models-2010-11-06.jar:xom-1.2.6.jar:xom.jar:jgraph.jar:jgrapht.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
+    java -cp stanford-corenlp-2011-09-16.jar:stanford-corenlp-2011-09-14-models.jar:xom.jar:joda-time.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
 
 You can reach me, Dustin Smith, by sending a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin)).
 
