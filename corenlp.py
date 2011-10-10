@@ -48,9 +48,10 @@ def parse_parser_results(text):
                 print line
                 raise Exception("Parse error. Could not find [Text=")
             tmp['words'] = [] 
-            exp = re.compile('\[([a-zA-Z0-9=. ]+)\]')
+            exp = re.compile('\[([^\]]+)\]')
             matches  = exp.findall(line)
             for s in matches:
+                print s
                 # split into attribute-value list 
                 av = re.split("=| ", s) 
                 # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
@@ -137,7 +138,7 @@ class StanfordCoreNLP(object):
                 sys.exit(1)
         
         # spawn the server
-        self._server = pexpect.spawn("%s -Xmx3g -cp %s %s %s" % (java_path, ':'.join(jars), classname, props))
+        self._server = pexpect.spawn("%s -Xmx1800m -cp %s %s %s" % (java_path, ':'.join(jars), classname, props))
         
         print "Starting the Stanford Core NLP parser."
         self.state = "plays hard to get, smiles from time to time"
