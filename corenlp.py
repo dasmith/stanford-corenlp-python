@@ -14,6 +14,7 @@ import sys
 import os
 import time
 import re
+from unidecode import unidecode
 
 import pexpect
 
@@ -25,6 +26,27 @@ def remove_id(word):
     """Removes the numeric suffix from the parsed recognized words: e.g. 'word-2' > 'word' """
     return word.count("-") == 0 and word or word[0:word.rindex("-")]
 
+def parse_bracketed(s):
+  '''Parse word features [abc=... def = ...]
+  Also manages to parse out features that have XML within them
+  '''
+  word = None
+  attrs = {}
+  temp = {}
+  # Substitute XML tags, to replace them later
+  for i, tag in enumerate(re.findall(r"(<[^<>]+>.*<\/[^<>]+>)", s)):
+    temp["^^^%d^^^" % i] = tag
+    s = s.replace(tag, "^^^%d^^^" % i)
+  # Load key-value pairs, substituting as necessary
+  for attr, val in re.findall(r"([^=\s]*)=([^=\s]*)", s):
+    if val in temp:
+      val = temp[val]
+    if attr == 'Text':
+      word = val
+    else:
+      attrs[attr] = val
+  return (word, attrs)
+
 def parse_parser_results(text):
     """ This is the nasty bit of code to interact with the command-line
     interface of the CoreNLP tools.  Takes a string of the parser results
@@ -33,12 +55,14 @@ def parse_parser_results(text):
     """
     state = 0
     tmp = {}
-    results = []
+    coref_set = []
+    results = { "sentences": [] }
+    text = unidecode(text) # Force output conversion to ASCII to avoid RPC error
     for line in text.split("\n"):
         if line.startswith("Sentence #"):
             state = 1
             if len(tmp.keys()) != 0:
-                results.append(tmp)
+                results["sentences"].append(tmp) # Put results in "sentences" key so "corefs" can exist outside
                 tmp = {}
         elif state == 1:
             tmp['text'] = line.strip()
@@ -51,28 +75,17 @@ def parse_parser_results(text):
             exp = re.compile('\[([^\]]+)\]')
             matches  = exp.findall(line)
             for s in matches:
-                print s
-                # split into attribute-value list 
-                av = re.split("=| ", s) 
-                # make [ignore,ignore,a,b,c,d] into [[a,b],[c,d]]
-                # and save as attr-value dict, convert numbers into ints
-                #tmp['words'].append((av[1], dict(zip(*[av[2:][x::2] for x in (0, 1)]))))
-                # tried to convert digits to ints instead of strings, but
-                # it seems the results of this can't be serialized into JSON?
-                word = av[1]
-                attributes = {}
-                for a,v in zip(*[av[2:][x::2] for x in (0, 1)]):
-                    if v.isdigit():
-                        attributes[a] = int(v)
-                    else:
-                        attributes[a] = v
-                tmp['words'].append((word, attributes))
+                tmp['words'].append(parse_bracketed(s))
             state = 3
+            tmp['parsetree'] = []
         elif state == 3:
-            # skip over parse tree
+            # Output parse tree as well (useful especially if you want to pull this into NLTK)
             if not (line.startswith(" ") or line.startswith("(ROOT")):
                 state = 4
-                tmp['tuples'] = [] 
+                tmp['parsetree'] = " ".join(tmp['parsetree'])
+                tmp['tuples'] = []
+            else:
+              tmp['parsetree'].append(line.strip())
         if state == 4:
             # dependency parse
             line = line.rstrip()
@@ -81,27 +94,34 @@ def parse_parser_results(text):
                 if len(split_entry) == 3:
                     rel, left, right = map(lambda x: remove_id(x), split_entry)
                     tmp['tuples'].append(tuple([rel,left,right]))
-            elif "Coreference links" in line:
+            elif "Coreference set" in line:
                 state = 5
+                coref_set = []
         elif state == 5:
-            crexp = re.compile('\s(\d*)\s(\d*)\s\-\>\s(\d*)\s(\d*), that is')
+          if "Coreference set" in line: # Create new coreference set if needed
+            if len(coref_set) > 0:
+              if results.has_key('coref'):
+                results['coref'].append(coref_set)
+              else:
+                results['coref'] = [coref_set]
+            coref_set = []
+          else:
+            # Updated for new coreference format
+            crexp = re.compile(r"\((\d*),(\d)*,\[(\d*),(\d*)\)\) -> \((\d*),(\d)*,\[(\d*),(\d*)\)\), that is: \"(.*)\" -> \"(.*)\"")
             matches = crexp.findall(line)
-            for src_i, src_pos, sink_i, sink_pos in matches:
-                # TODO: src_i and sink_i correspond to the sentences.
-                # this was built for single sentences, and thus ignores
-                # the sentence number.  Should be fixed, but would require
-                # restructuring the entire output.
-                print "COREF MATCH", src_i, sink_i
-                src = tmp['words'][int(src_pos)-1][0]
-                sink = tmp['words'][int(sink_pos)-1][0]
-                if tmp.has_key('coref'):
-                    tmp['coref'].append((src, sink))
-                else:
-                    tmp['coref'] = [(src, sink)]
-         
+            for src_i, src_pos, src_l, src_r, sink_i, sink_pos, sink_l, sink_r, src_word, sink_word in matches:
+                src_i, src_pos, src_l, src_r = int(src_i)-1, int(src_pos)-1, int(src_l)-1, int(src_r)-1
+                sink_i, sink_pos, sink_l, sink_r = int(sink_i)-1, int(sink_pos)-1, int(sink_l)-1, int(sink_r)-1
+                print "COREF MATCH", src_i, sink_i                
+                coref_set.append(((src_word, src_i, src_pos, src_l, src_r), (sink_word, sink_i, sink_pos, sink_l, sink_r)))
             print "CR", line
     if len(tmp.keys()) != 0:
-        results.append(tmp)
+        results["sentences"].append(tmp)
+    if len(coref_set) > 0: # Add final coreference set if needed
+      if results.has_key('coref'):
+        results['coref'].append(coref_set)
+      else:
+        results['coref'] = [coref_set]      
     return results
 
 class StanfordCoreNLP(object):
@@ -116,8 +136,8 @@ class StanfordCoreNLP(object):
         Spawns the server as a process.
         """
 
-        jars = ["stanford-corenlp-2011-09-16.jar", 
-                "stanford-corenlp-2011-09-14-models.jar",
+        jars = ["stanford-corenlp-2012-04-09.jar", 
+                "stanford-corenlp-2012-04-09-models.jar",
                 "joda-time.jar",
                 "xom.jar"]
        
