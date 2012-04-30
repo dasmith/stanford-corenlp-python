@@ -136,6 +136,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 
 import sys
 
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
+
 #=========================================
 # errors
 
@@ -251,12 +257,6 @@ class RPCInvalidParamValues(RPCFault):
 #=========================================
 # data structure / serializer
 
-try:
-    import simplejson
-except ImportError, err:
-    print "FATAL: json-module 'simplejson' is missing (%s)" % (err)
-    sys.exit(1)
-
 #----------------------
 #
 def dictkeyclean(d):
@@ -282,7 +282,7 @@ class JsonRpc10:
     :SeeAlso:   JSON-RPC 1.0 specification
     :TODO:      catch simplejson.dumps not-serializable-exceptions
     """
-    def __init__(self, dumps=simplejson.dumps, loads=simplejson.loads):
+    def __init__(self, dumps=json.dumps, loads=json.loads):
         """init: set serializer to use
 
         :Parameters:
@@ -457,7 +457,7 @@ class JsonRpc20:
     :SeeAlso:   JSON-RPC 2.0 specification
     :TODO:      catch simplejson.dumps not-serializable-exceptions
     """
-    def __init__(self, dumps=simplejson.dumps, loads=simplejson.loads):
+    def __init__(self, dumps=json.dumps, loads=json.loads):
         """init: set serializer to use
 
         :Parameters:

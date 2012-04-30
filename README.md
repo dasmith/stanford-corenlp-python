@@ -8,20 +8,19 @@ There's not much to this script.  I decided to create it after having problems u
 First the JPypes approach used in [stanford-parser-python](http://projects.csail.mit.edu/spatial/Stanford_Parser) had trouble initializing a JVM on two separate computers.  Next, I discovered I could not use a 
 [Jython solution](http://blog.gnucom.cc/2010/using-the-stanford-parser-with-jython/) because the Python modules I needed did not work in Jython.
 
-It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly. I have only tested this on **Core NLP tools version 1.2.0** released 2011-09-16.
+It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly, but it has been tested on **Core NLP tools version 1.3.1** released 2012-04-09.
 
 ## Download and Usage 
 
-You should have [downloaded](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpacked the tgz file containing Stanford's CoreNLP package.  Then copy all of the python files from this repository into the `stanford-corenlp-2011-09-16` folder.
+You should have [downloaded](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpacked the tgz file containing Stanford's CoreNLP package.  By default, `corenlp.py` looks for the Stanford Core NLP folder as a subdirectory of where the script is being run.
 
 In other words: 
 
-    sudo pip install pexpect
-    wget http://nlp.stanford.edu/software/stanford-corenlp-v1.2.0.tgz
-    tar xvfz stanford-corenlp-v1.2.0.tgz
-    cd stanford-corenlp-2011-09-16
-    git clone git://github.com/dasmith/stanford-corenlp-python.git
-    mv stanford-corenlp-python/* .
+    sudo pip install pexpect unidecode   # unidecode is optional
+	git clone git://github.com/dasmith/stanford-corenlp-python.git
+	cd stanford-corenlp-python.git
+    wget http://nlp.stanford.edu/software/stanford-corenlp-2012-04-09.tgz
+    tar xvfz stanford-corenlp-2012-04-09.tgz
 
 Then, to launch a server:
 
@@ -45,10 +44,20 @@ Assuming you are running on port 8080, the code in `client.py` shows an example 
 
 That returns a list containing a dictionary for each sentence, with keys `text`, `tuples` of the dependencies, and `words`:
 
-    Result [{'text': 'hello world', 
-             'tuples': [['amod', 'world', 'hello']], 
-             'words': [['hello', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': 5, 'CharacterOffsetBegin': 0, 'PartOfSpeech': 'JJ', 'Lemma': 'hello'}], 
-                       ['world', {'NamedEntityTag': 'O', 'CharacterOffsetEnd': 11, 'CharacterOffsetBegin': 6, 'PartOfSpeech': 'NN', 'Lemma': 'world'}]]}]
+		{u'sentences': [{u'parsetree': u'(ROOT (NP (JJ hello) (NN world)))', 
+						 u'text': u'hello world', 
+						 u'tuples': [[u'amod', u'world', u'hello'], 
+						             [u'root', u'ROOT', u'world']], 
+						 u'words': [[u'hello', {u'NamedEntityTag': u'O', 
+						                        u'CharacterOffsetEnd': u'5', 
+						                        u'CharacterOffsetBegin': u'0', 
+						                        u'PartOfSpeech': u'UH', 
+						                        u'Lemma': u'hello'}], 
+						            [u'world', {u'NamedEntityTag': u'O', 
+						                        u'CharacterOffsetEnd': u'11', 
+						                        u'CharacterOffsetBegin': u'6', 
+						                        u'PartOfSpeech': u'NN', 
+						                        u'Lemma': u'world'}]]}]}
     
 To use it in a regular script or to edit/debug it (because errors via RPC are opaque), load the module instead:
 
@@ -89,9 +98,6 @@ If pexpect timesout while loading models, check to make sure you have enough mem
 
 You can reach me, Dustin Smith, by sending a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin)).
 
-#  TODO
- 
-  - Mutex on parser
-  - Write test functions for parsing accuracy
-  - Calibrate parse-time prediction as function of sentence inputs
+# Contributors
+
 

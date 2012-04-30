@@ -1,25 +1,45 @@
 #!/usr/bin/env python
-"""
-This is a Python interface to Stanford Core NLP tools.
-It can be imported as a module or run as a server.
+#
+# corenlp  - Python interface to Stanford Core NLP tools
+# Copyright (c) 2012 Dustin Smith
+#   https://github.com/dasmith/stanford-corenlp-python
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-For more details:
-    https://github.com/dasmith/stanford-corenlp-python
-
-By Dustin Smith, 2011
-"""
-from simplejson import loads, dumps
+try:
+    import json
+except ImportError:
+    import simplejson as json
+    
 import optparse
 import sys
 import os
 import time
 import re
-from unidecode import unidecode
+import logging
+
+try:
+    from unidecode import unidecode
+except ImportError:
+    logging.info("unidecode library not installed")
+    def unidecode(text):
+        return text
+
+from progressbar import *
+import jsonrpc
 
 import pexpect
-
-import jsonrpc
-from progressbar import *
 
 
 def remove_id(word):
@@ -135,7 +155,6 @@ class StanfordCoreNLP(object):
         Checks the location of the jar files.
         Spawns the server as a process.
         """
-
         jars = ["stanford-corenlp-2012-04-09.jar", 
                 "stanford-corenlp-2012-04-09-models.jar",
                 "joda-time.jar",
@@ -143,7 +162,8 @@ class StanfordCoreNLP(object):
        
         # if CoreNLP libraries are in a different directory,
         # change the corenlp_path variable to point to them
-        corenlp_path = ""
+        corenlp_path = "stanford-corenlp-2012-04-09/"
+        
         java_path = "java"
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
         # include the properties file, so you can change defaults
@@ -249,61 +269,16 @@ class StanfordCoreNLP(object):
         if verbose: print "Request", text
         results = self._parse(text, verbose)
         if verbose: print "Results", results
-        return dumps(results)
-
-    def parse_imperative(self, text, verbose=True):
-        """
-        This is a hacky way to deal with imperative statements.
-
-        Takes an imperative, adds a personal pronoun, parses it,
-        and then removes it in the resulting parse.
-        
-        e.g. "open the door" gets parsed as "you open the door"
-        """
-        # find a pronoun that's not in the string already.
-        used_pronoun = None
-        pronouns = ["you","he", "she","i"]
-        for p in pronouns:
-            if text.startswith(p+" "):
-                # it's already an imperative!
-                used_pronoun = None
-                break
-            if p not in text:
-                # found one not in there already
-                used_pronoun = p
-                break
-        # if you can't find one, regress to original parse
-        if not used_pronoun:
-            return self.parse(text, verbose)
-  
-        # create text with pronoun and parse it
-        new_text = used_pronoun+" "+text.lstrip()
-        result = self._parse(new_text, verbose)
-        
-        if len(result) != 1:
-            print "Non-imperative sentence?  Multiple sentences found."
-
-        # remove the dummy pronoun
-        used_pronoun_offset = len(used_pronoun)+1
-        if result[0].has_key('text'):
-            result[0]['text'] = text
-            result[0]['tuples'] = filter(lambda x: not (x[1] == used_pronoun or x[2]
-                    == used_pronoun), result[0]['tuples'])
-            result[0]['words'] = result[0]['words'][1:]
-            # account for offset
-            ct = 0
-            for word, av in result[0]['words']:
-                for a,v in av.items():
-                    if a.startswith("CharacterOffset"):
-                        result[0]['words'][ct][1][a] = v-used_pronoun_offset
-                ct += 1
-            return dumps(result)
-        else:
-            # if there's a timeout error, just return it.
-            return dumps(result)
+        return json.dumps(results)
 
 
 if __name__ == '__main__':
+    """
+    This block is executed when the file is run directly as a script, not when it
+    is imported. 
+    
+    The code below starts an JSONRPC server
+    """
     parser = optparse.OptionParser(usage="%prog [OPTIONS]")
     parser.add_option(
         '-p', '--port', default='8080',
