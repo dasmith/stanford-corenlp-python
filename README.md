@@ -5,7 +5,7 @@ This is a Python wrapper for Stanford University's NLP group's Java-based [CoreN
 
    * Python interface to Stanford CoreNLP tools: tagging, phrase-structure parsing, dependency parsing, named entity resolution, and coreference resolution.
    * Runs an JSON-RPC server that wraps the Java server and outputs JSON.
-   * Outputs parse trees which can be used in `nltk`
+   * Outputs parse trees which can be used by [nltk](http://nltk.googlecode.com/svn/trunk/doc/howto/tree.html).
 
 
 It requires [pexpect](http://www.noah.org/wiki/pexpect) and (optionally) [unidecode](http://pypi.python.org/pypi/Unidecode) to handle non-ASCII text.  This script includes and uses code from [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
@@ -139,6 +139,6 @@ You can reach me, Dustin Smith, by sending a message on GitHub or through email 
 
 This is free and open source software and has benefited from the contribution and feedback of others.  Like Stanford's CoreNLP tools, it is covered under the [GNU General Public License](http://www.gnu.org/licenses/gpl-2.0.html), which in short means that modifications to this program must maintain the same free and open source distribution policy.
 
-  * Justin Cheng jccf@221513ecf322dc32d6e088fb2f68751e45bac226
+  * Justin Cheng jcccf@221513ecf322dc32d6e088fb2f68751e45bac226
   * Abhaya Agarwal 8ed7640388cac8ba6d897739f5c8fe24eb87cc48
 

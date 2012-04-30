@@ -21,3 +21,9 @@ print "Result", result
 import pprint
 result = json.loads(server.parse("Hello world!  It is so beautiful."))
 pprint.pprint(result)
+
+# example using nltk
+from nltk.tree import *
+tree = Tree.parse(result['sentences'][0]['parsetree'])
+print tree
+print tree.leaves()
