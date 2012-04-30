@@ -1,10 +1,16 @@
-# Python interface to Stanford Core NLP tools v1.2.0
+# Python interface to Stanford Core NLP tools v1.3.1
 
 This is a Python wrapper for Stanford University's NLP group's Java-based [CoreNLP tools](http://nlp.stanford.edu/software/corenlp.shtml).  It can either be imported as a module or run as an JSON-RPC server. Because it uses many large trained models (requiring 3GB RAM on 64-bit machines and usually a few minutes loading time), most applications will probably want to run it as a server.
 
-It requires [pexpect](http://www.noah.org/wiki/pexpect).  The repository includes and uses code from [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
 
-There's not much to this script.  I decided to create it after having problems using other Python wrappers to Stanford's dependency parser. 
+   * Python interface to Stanford CoreNLP tools: tagging, phrase-structure parsing, dependency parsing, named entity resolution, and coreference resolution.
+   * Runs an JSON-RPC server that wraps the Java server and outputs JSON.
+   * Outputs parse trees which can be used in `nltk`
+
+
+It requires [pexpect](http://www.noah.org/wiki/pexpect) and (optionally) [unidecode](http://pypi.python.org/pypi/Unidecode) to handle non-ASCII text.  This script includes and uses code from [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
+
+This is a simple script I created after having problems using other Python wrappers to Stanford's dependency parser. 
 First the JPypes approach used in [stanford-parser-python](http://projects.csail.mit.edu/spatial/Stanford_Parser) had trouble initializing a JVM on two separate computers.  Next, I discovered I could not use a 
 [Jython solution](http://blog.gnucom.cc/2010/using-the-stanford-parser-with-jython/) because the Python modules I needed did not work in Jython.
 
@@ -12,7 +18,7 @@ It runs the Stanford CoreNLP jar in a separate process, communicates with the ja
 
 ## Download and Usage 
 
-You should have [downloaded](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpacked the tgz file containing Stanford's CoreNLP package.  By default, `corenlp.py` looks for the Stanford Core NLP folder as a subdirectory of where the script is being run.
+To use this program you must [download](http://nlp.stanford.edu/software/corenlp.shtml#Download) and unpack the tgz file containing Stanford's CoreNLP package.  By default, `corenlp.py` looks for the Stanford Core NLP folder as a subdirectory of where the script is being run.
 
 In other words: 
 
@@ -39,45 +45,76 @@ Assuming you are running on port 8080, the code in `client.py` shows an example 
     server = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
             jsonrpc.TransportTcpIp(addr=("127.0.0.1", 8080)))
 
-    result = loads(server.parse("hello world"))
+    result = loads(server.parse("Hello world.  It is so beautiful"))
     print "Result", result
 
-That returns a list containing a dictionary for each sentence, with keys `text`, `tuples` of the dependencies, and `words`:
+That returns a dictionary containing the keys `sentences` and (when applicable) `corefs`.  `sentences` are a list of dictionaries for each sentence, which contain `parsetree`, `text`, `tuples` containing the dependencies, and `words`, containing information about parts of speech, NER, etc:
 
-		{u'sentences': [{u'parsetree': u'(ROOT (NP (JJ hello) (NN world)))', 
-						 u'text': u'hello world', 
-						 u'tuples': [[u'amod', u'world', u'hello'], 
-						             [u'root', u'ROOT', u'world']], 
-						 u'words': [[u'hello', {u'NamedEntityTag': u'O', 
-						                        u'CharacterOffsetEnd': u'5', 
-						                        u'CharacterOffsetBegin': u'0', 
-						                        u'PartOfSpeech': u'UH', 
-						                        u'Lemma': u'hello'}], 
-						            [u'world', {u'NamedEntityTag': u'O', 
-						                        u'CharacterOffsetEnd': u'11', 
-						                        u'CharacterOffsetBegin': u'6', 
-						                        u'PartOfSpeech': u'NN', 
-						                        u'Lemma': u'world'}]]}]}
+	{u'sentences': [{u'parsetree': u'(ROOT (S (VP (NP (INTJ (UH Hello)) (NP (NN world)))) (. !)))',
+	                 u'text': u'Hello world!',
+	                 u'tuples': [[u'dep', u'world', u'Hello'],
+	                             [u'root', u'ROOT', u'world']],
+	                 u'words': [[u'Hello',
+	                             {u'CharacterOffsetBegin': u'0',
+	                              u'CharacterOffsetEnd': u'5',
+	                              u'Lemma': u'hello',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'UH'}],
+	                            [u'world',
+	                             {u'CharacterOffsetBegin': u'6',
+	                              u'CharacterOffsetEnd': u'11',
+	                              u'Lemma': u'world',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'NN'}],
+	                            [u'!',
+	                             {u'CharacterOffsetBegin': u'11',
+	                              u'CharacterOffsetEnd': u'12',
+	                              u'Lemma': u'!',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'.'}]]},
+	                {u'parsetree': u'(ROOT (S (NP (PRP It)) (VP (VBZ is) (ADJP (RB so) (JJ beautiful))) (. .)))',
+	                 u'text': u'It is so beautiful.',
+	                 u'tuples': [[u'nsubj', u'beautiful', u'It'],
+	                             [u'cop', u'beautiful', u'is'],
+	                             [u'advmod', u'beautiful', u'so'],
+	                             [u'root', u'ROOT', u'beautiful']],
+	                 u'words': [[u'It',
+	                             {u'CharacterOffsetBegin': u'14',
+	                              u'CharacterOffsetEnd': u'16',
+	                              u'Lemma': u'it',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'PRP'}],
+	                            [u'is',
+	                             {u'CharacterOffsetBegin': u'17',
+	                              u'CharacterOffsetEnd': u'19',
+	                              u'Lemma': u'be',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'VBZ'}],
+	                            [u'so',
+	                             {u'CharacterOffsetBegin': u'20',
+	                              u'CharacterOffsetEnd': u'22',
+	                              u'Lemma': u'so',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'RB'}],
+	                            [u'beautiful',
+	                             {u'CharacterOffsetBegin': u'23',
+	                              u'CharacterOffsetEnd': u'32',
+	                              u'Lemma': u'beautiful',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'JJ'}],
+	                            [u'.',
+	                             {u'CharacterOffsetBegin': u'32',
+	                              u'CharacterOffsetEnd': u'33',
+	                              u'Lemma': u'.',
+	                              u'NamedEntityTag': u'O',
+	                              u'PartOfSpeech': u'.'}]]}],
+	u'coref': [[[[u'It', 1, 0, 0, 1], [u'Hello world', 0, 1, 0, 2]]]]}
     
 To use it in a regular script or to edit/debug it (because errors via RPC are opaque), load the module instead:
 
     from corenlp import *
     corenlp = StanfordCoreNLP()  # wait a few minutes...
-    corenlp.parse("Parse an imperative sentence, damnit!")
-
-### Parsing Imperative Sentences
-
-I added a function called `parse_imperative` that introduces a dummy pronoun to overcome the problems that dependency parsers have with **imperative sentences**, dealing with only one at a time. 
-
-    corenlp.parse("stop smoking")
-    >> [{"text": "stop smoking", "tuples": [["nn", "smoking", "stop"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": 4, "Lemma": "stop", "PartOfSpeech": "NN", "CharacterOffsetBegin": 0}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": 12, "Lemma": "smoking", "PartOfSpeech": "NN", "CharacterOffsetBegin": 5}]]}]
-
-    corenlp.parse_imperative("stop smoking")
-    >> [{"text": "stop smoking", "tuples": [["xcomp", "stop", "smoking"]], "words": [["stop", {"NamedEntityTag": "O", "CharacterOffsetEnd": 8, "Lemma": "stop", "PartOfSpeech": "VBP", "CharacterOffsetBegin": 4}], ["smoking", {"NamedEntityTag": "O", "CharacterOffsetEnd": 16, "Lemma": "smoke", "PartOfSpeech": "VBG", "CharacterOffsetBegin": 9}]]}]
-
-Only with the dummy pronoun does the parser correctly identify the first word, *stop*, to be a verb.
-
-**Coreferences** are returned in the `coref` key, only when they are found as a list of references, e.g. `{'coref': [['he','John']]}`.
+    corenlp.parse("Parse it")
 
 <!--
 ## Adding WordNet
@@ -100,4 +137,8 @@ You can reach me, Dustin Smith, by sending a message on GitHub or through email 
 
 # Contributors
 
+This is free and open source software and has benefited from the contribution and feedback of others.  Like Stanford's CoreNLP tools, it is covered under the [GNU General Public License](http://www.gnu.org/licenses/gpl-2.0.html), which in short means that modifications to this program must maintain the same free and open source distribution policy.
+
+  * Justin Cheng jccf@221513ecf322dc32d6e088fb2f68751e45bac226
+  * Abhaya Agarwal 8ed7640388cac8ba6d897739f5c8fe24eb87cc48
 

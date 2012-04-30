@@ -11,8 +11,13 @@ server = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
 result = json.loads(server.parse("hello world"))
 print "Result", result
 
+# now handles imperatives
 result = json.loads(server.parse("stop smoking"))
 print "Result", result
 
 result = json.loads(server.parse("eat dinner"))
 print "Result", result
+
+import pprint
+result = json.loads(server.parse("Hello world!  It is so beautiful."))
+pprint.pprint(result)
