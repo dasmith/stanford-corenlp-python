@@ -292,6 +292,5 @@ if __name__ == '__main__':
                             jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))))
     nlp = StanfordCoreNLP()
     server.register_function(nlp.parse)
-    server.register_function(nlp.parse_imperative)
     print 'Serving on http://%s:%s' % (options.host, options.port)
     server.serve()
