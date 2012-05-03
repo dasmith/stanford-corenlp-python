@@ -10,10 +10,6 @@ This is a Python wrapper for Stanford University's NLP group's Java-based [CoreN
 
 It requires [pexpect](http://www.noah.org/wiki/pexpect) and (optionally) [unidecode](http://pypi.python.org/pypi/Unidecode) to handle non-ASCII text.  This script includes and uses code from [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
 
-This is a simple script I created after having problems using other Python wrappers to Stanford's dependency parser. 
-First the JPypes approach used in [stanford-parser-python](http://projects.csail.mit.edu/spatial/Stanford_Parser) had trouble initializing a JVM on two separate computers.  Next, I discovered I could not use a 
-[Jython solution](http://blog.gnucom.cc/2010/using-the-stanford-parser-with-jython/) because the Python modules I needed did not work in Jython.
-
 It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly, but it has been tested on **Core NLP tools version 1.3.1** released 2012-04-09.
 
 ## Download and Usage 
@@ -24,7 +20,7 @@ In other words:
 
     sudo pip install pexpect unidecode   # unidecode is optional
 	git clone git://github.com/dasmith/stanford-corenlp-python.git
-	cd stanford-corenlp-python.git
+	cd stanford-corenlp-python
     wget http://nlp.stanford.edu/software/stanford-corenlp-2012-04-09.tgz
     tar xvfz stanford-corenlp-2012-04-09.tgz
 
@@ -141,4 +137,11 @@ This is free and open source software and has benefited from the contribution an
 
   * Justin Cheng jcccf@221513ecf322dc32d6e088fb2f68751e45bac226
   * Abhaya Agarwal 8ed7640388cac8ba6d897739f5c8fe24eb87cc48
+
+## Similar Projects
+
+These two projects are python wrappers for the [Stanford Parser](http://nlp.stanford.edu/software/lex-parser.shtml), different than "core NLP tools":
+
+  - [stanford-parser-python](http://projects.csail.mit.edu/spatial/Stanford_Parser) uses [JPype](http://jpype.sourceforge.net/) (interface to JVM)
+  - [stanford-parser-jython](http://blog.gnucom.cc/2010/using-the-stanford-parser-with-jython/) uses Python
 
