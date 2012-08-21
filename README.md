@@ -44,7 +44,7 @@ Assuming you are running on port 8080, the code in `client.py` shows an example 
     result = loads(server.parse("Hello world.  It is so beautiful"))
     print "Result", result
 
-That returns a dictionary containing the keys `sentences` and (when applicable) `corefs`.  `sentences` are a list of dictionaries for each sentence, which contain `parsetree`, `text`, `tuples` containing the dependencies, and `words`, containing information about parts of speech, NER, etc:
+That returns a dictionary containing the keys `sentences` and (when applicable) `corefs`. The key `sentences` contains a list of dictionaries for each sentence, which contain `parsetree`, `text`, `tuples` containing the dependencies, and `words`, containing information about parts of speech, NER, etc:
 
 	{u'sentences': [{u'parsetree': u'(ROOT (S (VP (NP (INTJ (UH Hello)) (NP (NN world)))) (. !)))',
 	                 u'text': u'Hello world!',
@@ -129,7 +129,7 @@ tar xvfz WNprolog-3.0.tar.gz
 **Stanford CoreNLP tools require a large amount of free memory**.  Java 5+ uses about 50% more RAM on 64-bit machines than 32-bit machines.  32-bit machine users can lower the memory requirements by changing `-Xmx3g` to `-Xmx2g` or even less.
 If pexpect timesout while loading models, check to make sure you have enough memory and can run the server alone without your kernel killing the java process:
 
-    java -cp stanford-corenlp-2011-09-16.jar:stanford-corenlp-2011-09-14-models.jar:xom.jar:joda-time.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
+	java -cp stanford-corenlp-2012-07-09.jar:stanford-corenlp-2012-07-06-models.jar:xom.jar:joda-time.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
 
 You can reach me, Dustin Smith, by sending a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin)).
 
@@ -138,13 +138,14 @@ You can reach me, Dustin Smith, by sending a message on GitHub or through email 
 
 This is free and open source software and has benefited from the contribution and feedback of others.  Like Stanford's CoreNLP tools, it is covered under the [GNU General Public License v2 +](http://www.gnu.org/licenses/gpl-2.0.html), which in short means that modifications to this program must maintain the same free and open source distribution policy.
 
-  * Justin Cheng jcccf@221513ecf322dc32d6e088fb2f68751e45bac226
-  * Abhaya Agarwal 8ed7640388cac8ba6d897739f5c8fe24eb87cc48
+This project has benefited from the contributions of:
 
-## Similar Projects
+  * @jcc Justin Cheng 
+  * Abhaya Agarwal
 
-These two projects are python wrappers for the [Stanford Parser](http://nlp.stanford.edu/software/lex-parser.shtml), different than "core NLP tools":
+## Related Projects
 
+These two projects are python wrappers for the [Stanford Parser](http://nlp.stanford.edu/software/lex-parser.shtml), which includes the Stanford Parser, although the Stanford Parser is another project.
   - [stanford-parser-python](http://projects.csail.mit.edu/spatial/Stanford_Parser) uses [JPype](http://jpype.sourceforge.net/) (interface to JVM)
   - [stanford-parser-jython](http://blog.gnucom.cc/2010/using-the-stanford-parser-with-jython/) uses Python
 
