@@ -1,4 +1,4 @@
-# Python interface to Stanford Core NLP tools v1.3.1
+# Python interface to Stanford Core NLP tools v1.3.3
 
 This is a Python wrapper for Stanford University's NLP group's Java-based [CoreNLP tools](http://nlp.stanford.edu/software/corenlp.shtml).  It can either be imported as a module or run as a JSON-RPC server. Because it uses many large trained models (requiring 3GB RAM on 64-bit machines and usually a few minutes loading time), most applications will probably want to run it as a server.
 
@@ -10,7 +10,7 @@ This is a Python wrapper for Stanford University's NLP group's Java-based [CoreN
 
 It requires [pexpect](http://www.noah.org/wiki/pexpect) and (optionally) [unidecode](http://pypi.python.org/pypi/Unidecode) to handle non-ASCII text.  This script includes and uses code from [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
 
-It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly, but it has been tested on **Core NLP tools version 1.3.1** released 2012-04-09.
+It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly, but it has been tested on **Core NLP tools version 1.3.3** released 2012-07-09.
 
 ## Download and Usage 
 
@@ -19,10 +19,10 @@ To use this program you must [download](http://nlp.stanford.edu/software/corenlp
 In other words: 
 
     sudo pip install pexpect unidecode   # unidecode is optional
-	git clone git://github.com/dasmith/stanford-corenlp-python.git
-	cd stanford-corenlp-python
-    wget http://nlp.stanford.edu/software/stanford-corenlp-2012-04-09.tgz
-    tar xvfz stanford-corenlp-2012-04-09.tgz
+    git clone git://github.com/dasmith/stanford-corenlp-python.git
+	  cd stanford-corenlp-python
+    wget http://nlp.stanford.edu/software/stanford-corenlp-2012-07-09.tgz
+    tar xvfz stanford-corenlp-2012-07-09.tgz
 
 Then, to launch a server:
 
@@ -113,6 +113,7 @@ To use it in a regular script or to edit/debug it (because errors via RPC are op
     corenlp.parse("Parse it")
 
 <!--
+
 ## Adding WordNet
 
 Note: wordnet doesn't seem to be supported using this approach.  Looks like you'll need Java.
@@ -122,6 +123,7 @@ tar xvfz WNprolog-3.0.tar.gz
 
 -->
 
+
 ## Questions 
 
 **Stanford CoreNLP tools require a large amount of free memory**.  Java 5+ uses about 50% more RAM on 64-bit machines than 32-bit machines.  32-bit machine users can lower the memory requirements by changing `-Xmx3g` to `-Xmx2g` or even less.
@@ -130,6 +132,7 @@ If pexpect timesout while loading models, check to make sure you have enough mem
     java -cp stanford-corenlp-2011-09-16.jar:stanford-corenlp-2011-09-14-models.jar:xom.jar:joda-time.jar -Xmx3g edu.stanford.nlp.pipeline.StanfordCoreNLP -props default.properties
 
 You can reach me, Dustin Smith, by sending a message on GitHub or through email (contact information is available [on my webpage](http://web.media.mit.edu/~dustin)).
+
 
 # Contributors
 
