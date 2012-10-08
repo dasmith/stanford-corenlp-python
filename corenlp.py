@@ -91,7 +91,7 @@ def parse_parser_results(text):
             else:
                 sentence['parsetree'].append(line)
         
-        if state == STATE_DEPENDENCY:
+        elif state == STATE_DEPENDENCY:
             if len(line) == 0:
                 state = STATE_COREFERENCE
             else:
