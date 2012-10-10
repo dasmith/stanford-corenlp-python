@@ -1,29 +1,19 @@
-import jsonrpc
-try:
-    import json
-except ImportError:
-    import simplejson as json
+import json
+from jsonrpc import ServerProxy, JsonRpc20, TransportTcpIp
+from pprint import pprint
 
-server = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
-        jsonrpc.TransportTcpIp(addr=("127.0.0.1", 8080)))
+class StanfordNLP:
+    def __init__(self):
+        self.server = ServerProxy(JsonRpc20(),
+                                  TransportTcpIp(addr=("127.0.0.1", 8080)))
+    
+    def parse(self, text):
+        return json.loads(self.server.parse(text))
 
-# call a remote-procedure 
-result = json.loads(server.parse("hello world"))
-print "Result", result
+nlp = StanfordNLP()
+result = nlp.parse("Hello world!  It is so beautiful.")
+pprint(result)
 
-# now handles imperatives
-result = json.loads(server.parse("stop smoking"))
-print "Result", result
-
-result = json.loads(server.parse("eat dinner"))
-print "Result", result
-
-import pprint
-result = json.loads(server.parse("Hello world!  It is so beautiful."))
-pprint.pprint(result)
-
-# example using nltk
-from nltk.tree import *
+from nltk.tree import Tree
 tree = Tree.parse(result['sentences'][0]['parsetree'])
-print tree
-print tree.leaves()
+pprint(tree)
