@@ -158,4 +158,4 @@ I gratefully welcome bug fixes and new features.  If you have forked this reposi
 
 ## Related Projects
 
-Maintainers of the Core NLP library at Stanford keep an [updated list of wrappers and extensions](http://nlp.stanford.edu/software/corenlp.shtml#Extensions).  See Brendan O'Connor's [https://github.com/brendano/stanford_corenlp_pywrapper] for a different socket-based approach.
+Maintainers of the Core NLP library at Stanford keep an [updated list of wrappers and extensions](http://nlp.stanford.edu/software/corenlp.shtml#Extensions).  See Brendan O'Connor's [stanford_corenlp_pywrapper](https://github.com/brendano/stanford_corenlp_pywrapper) for a different approach.
