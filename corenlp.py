@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # corenlp  - Python interface to Stanford Core NLP tools
-# Copyright (c) 2012 Dustin Smith
+# Copyright (c) 2014 Dustin Smith
 #   https://github.com/dasmith/stanford-corenlp-python
 # 
 # This program is free software; you can redistribute it and/or
@@ -18,16 +18,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import json, optparse, os, re, sys, time, traceback
+import json
+import optparse
+import os, re, sys, time, traceback
 import jsonrpc, pexpect
 from progressbar import ProgressBar, Fraction
 from unidecode import unidecode
+import logging
 
 
 VERBOSE = True
+
 STATE_START, STATE_TEXT, STATE_WORDS, STATE_TREE, STATE_DEPENDENCY, STATE_COREFERENCE = 0, 1, 2, 3, 4, 5
 WORD_PATTERN = re.compile('\[([^\]]+)\]')
-CR_PATTERN = re.compile(r"\((\d*),(\d)*,\[(\d*),(\d*)\)\) -> \((\d*),(\d)*,\[(\d*),(\d*)\)\), that is: \"(.*)\" -> \"(.*)\"")
+CR_PATTERN = re.compile(r"\((\d*),(\d)*,\[(\d*),(\d*)\]\) -> \((\d*),(\d)*,\[(\d*),(\d*)\]\), that is: \"(.*)\" -> \"(.*)\"")
+
+# initialize logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def remove_id(word):
@@ -65,7 +73,7 @@ def parse_parser_results(text):
     """
     results = {"sentences": []}
     state = STATE_START
-    for line in unidecode(text).split("\n"):
+    for line in text.encode('utf-8').split("\n"):
         line = line.strip()
         
         if line.startswith("Sentence #"):
@@ -120,19 +128,21 @@ class StanfordCoreNLP(object):
     Command-line interaction with Stanford's CoreNLP java utilities.
     Can be run as a JSON-RPC server or imported as a module.
     """
-    def __init__(self):
+    def __init__(self, corenlp_path=None):
         """
         Checks the location of the jar files.
         Spawns the server as a process.
         """
-        jars = ["stanford-corenlp-2012-07-09.jar",
-                "stanford-corenlp-2012-07-06-models.jar",
+        jars = ["stanford-corenlp-3.4.1.jar",
+                "stanford-corenlp-3.4.1-models.jar",
                 "joda-time.jar",
-                "xom.jar"]
+                "xom.jar",
+                "jollyday.jar"]
        
         # if CoreNLP libraries are in a different directory,
         # change the corenlp_path variable to point to them
-        corenlp_path = "stanford-corenlp-2012-07-09/"
+        if not corenlp_path:
+            corenlp_path = "./stanford-corenlp-full-2014-08-27/"
         
         java_path = "java"
         classname = "edu.stanford.nlp.pipeline.StanfordCoreNLP"
@@ -144,12 +154,13 @@ class StanfordCoreNLP(object):
         jars = [corenlp_path + jar for jar in jars]
         for jar in jars:
             if not os.path.exists(jar):
-                print "Error! Cannot locate %s" % jar
+                logger.error("Error! Cannot locate %s" % jar)
                 sys.exit(1)
         
         # spawn the server
         start_corenlp = "%s -Xmx1800m -cp %s %s %s" % (java_path, ':'.join(jars), classname, props)
-        if VERBOSE: print start_corenlp
+        if VERBOSE: 
+            logger.debug(start_corenlp)
         self.corenlp = pexpect.spawn(start_corenlp)
         
         # show progress bar while loading the models
@@ -189,32 +200,33 @@ class StanfordCoreNLP(object):
         # function of the text's length.
         # anything longer than 5 seconds requires that you also
         # increase timeout=5 in jsonrpc.py
-        max_expected_time = min(5, 3 + len(text) / 20.0)
+        max_expected_time = min(40, 3 + len(text) / 20.0)
         end_time = time.time() + max_expected_time
-        
+
         incoming = ""
         while True:
             # Time left, read more data
             try:
                 incoming += self.corenlp.read_nonblocking(2000, 1)
-                if "\nNLP>" in incoming: break
+                if "\nNLP>" in incoming: 
+                    break
                 time.sleep(0.0001)
             except pexpect.TIMEOUT:
                 if end_time - time.time() < 0:
-                    print "[ERROR] Timeout"
-                    return {'error': "timed out after %f seconds" % max_expected_time,
-                            'input': text,
-                            'output': incoming}
+                    logger.error("Error: Timeout with input '%s'" % (incoming))
+                    return {'error': "timed out after %f seconds" % max_expected_time}
                 else:
                     continue
             except pexpect.EOF:
                 break
         
-        if VERBOSE: print "%s\n%s" % ('='*40, incoming)
+        if VERBOSE: 
+            logger.debug("%s\n%s" % ('='*40, incoming))
         try:
             results = parse_parser_results(incoming)
         except Exception, e:
-            if VERBOSE: print traceback.format_exc()
+            if VERBOSE: 
+                logger.debug(traceback.format_exc())
             raise e
         
         return results
@@ -225,7 +237,9 @@ class StanfordCoreNLP(object):
         reads in the result, parses the results and returns a list
         with one dictionary entry for each parsed sentence, in JSON format.
         """
-        return json.dumps(self._parse(text))
+        response = self._parse(text)
+        logger.debug("Response: '%s'" % (response))
+        return json.dumps(response)
 
 
 if __name__ == '__main__':
@@ -234,9 +248,9 @@ if __name__ == '__main__':
     """
     parser = optparse.OptionParser(usage="%prog [OPTIONS]")
     parser.add_option('-p', '--port', default='8080',
-                      help='Port to serve on (default 8080)')
+                      help='Port to serve on (default: 8080)')
     parser.add_option('-H', '--host', default='127.0.0.1',
-                      help='Host to serve on (default localhost; 0.0.0.0 to make public)')
+                      help='Host to serve on (default: 127.0.0.1. Use 0.0.0.0 to make public)')
     options, args = parser.parse_args()
     server = jsonrpc.Server(jsonrpc.JsonRpc20(),
                             jsonrpc.TransportTcpIp(addr=(options.host, int(options.port))))
@@ -244,5 +258,5 @@ if __name__ == '__main__':
     nlp = StanfordCoreNLP()
     server.register_function(nlp.parse)
     
-    print 'Serving on http://%s:%s' % (options.host, options.port)
+    logger.info('Serving on http://%s:%s' % (options.host, options.port))
     server.serve()
