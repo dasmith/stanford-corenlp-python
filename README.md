@@ -108,8 +108,9 @@ To use it in a regular script or to edit/debug it (because errors via RPC are op
 
     from corenlp import *
     corenlp = StanfordCoreNLP()  # wait a few minutes...
-    corenlp.parse("Parse it")
+    corenlp.parse("Parse this sentence.")
 
+The server, `StanfordCoreNLP()`, takes an optional argument `corenlp_path` which specifies the relative path to the jar files.  The default value is `StanfordCoreNLP(corenlp_path="./stanford-corenlp-full-2014-08-27/")`.
 
 ## Coreference Resolution
 
