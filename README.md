@@ -3,7 +3,7 @@
 This is a Python wrapper for Stanford University's NLP group's Java-based [CoreNLP tools](http://nlp.stanford.edu/software/corenlp.shtml).  It can either be imported as a module or run as a JSON-RPC server. Because it uses many large trained models (requiring 3GB RAM on 64-bit machines and usually a few minutes loading time), most applications will probably want to run it as a server.
 
 
-   * Python interface to Stanford CoreNLP tools: tagging, phrase-structure parsing, dependency parsing, [named-entity resolution](http://en.wikipedia.org/wiki/Named-entity_recognition), and [coreference resolution](http://en.wikipedia.org/wiki/Coreference).
+   * Python interface to Stanford CoreNLP tools: tagging, phrase-structure parsing, dependency parsing, [named-entity recognition](http://en.wikipedia.org/wiki/Named-entity_recognition), and [coreference resolution](http://en.wikipedia.org/wiki/Coreference).
    * Runs an JSON-RPC server that wraps the Java server and outputs JSON.
    * Outputs parse trees which can be used by [nltk](http://nltk.googlecode.com/svn/trunk/doc/howto/tree.html).
 
