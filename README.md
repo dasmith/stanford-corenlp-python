@@ -114,9 +114,9 @@ The server, `StanfordCoreNLP()`, takes an optional argument `corenlp_path` which
 
 ## Coreference Resolution
 
-The library supports [coreference resolution](http://en.wikipedia.org/wiki/Coreference), meaning pronouns can be "dereferenced."  If an entry in the `coref` list is, `[u'Hello world', 0, 1, 0, 2]`, the numbers mean:
+The library supports [coreference resolution](http://en.wikipedia.org/wiki/Coreference), which means pronouns can be "dereferenced."  If an entry in the `coref` list is, `[u'Hello world', 0, 1, 0, 2]`, the numbers mean:
 
-  * 0 = The reference appears in the 0th sentence (e.g. "Hello World")
+  * 0 = The reference appears in the 0th sentence (e.g. "Hello world")
   * 1 = The 2nd token, "world", is the [headword](http://en.wikipedia.org/wiki/Head_%28linguistics%29) of that sentence
   * 0 = 'Hello world' begins at the 0th token in the sentence
   * 2 = 'Hello world' ends before the 2nd token in the sentence.
