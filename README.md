@@ -3,7 +3,7 @@
 This is a Python wrapper for Stanford University's NLP group's Java-based [CoreNLP tools](http://nlp.stanford.edu/software/corenlp.shtml).  It can either be imported as a module or run as a JSON-RPC server. Because it uses many large trained models (requiring 3GB RAM on 64-bit machines and usually a few minutes loading time), most applications will probably want to run it as a server.
 
 
-   * Python interface to Stanford CoreNLP tools: tagging, phrase-structure parsing, dependency parsing, named entity resolution, and coreference resolution.
+   * Python interface to Stanford CoreNLP tools: tagging, phrase-structure parsing, dependency parsing, [named-entity resolution](http://en.wikipedia.org/wiki/Named-entity_recognition), and [coreference resolution](http://en.wikipedia.org/wiki/Coreference).
    * Runs an JSON-RPC server that wraps the Java server and outputs JSON.
    * Outputs parse trees which can be used by [nltk](http://nltk.googlecode.com/svn/trunk/doc/howto/tree.html).
 
@@ -42,7 +42,7 @@ Assuming you are running on port 8080, the code in `client.py` shows an example 
     result = loads(server.parse("Hello world.  It is so beautiful"))
     print "Result", result
 
-That returns a dictionary containing the keys `sentences` and (when applicable) `corefs`. The key `sentences` contains a list of dictionaries for each sentence, which contain `parsetree`, `text`, `tuples` containing the dependencies, and `words`, containing information about parts of speech, NER, etc:
+That returns a dictionary containing the keys `sentences` and `coref`. The key `sentences` contains a list of dictionaries for each sentence, which contain `parsetree`, `text`, `tuples` containing the dependencies, and `words`, containing information about parts of speech, recognized named-entities, etc:
 
 	{u'sentences': [{u'parsetree': u'(ROOT (S (VP (NP (INTJ (UH Hello)) (NP (NN world)))) (. !)))',
 	                 u'text': u'Hello world!',
@@ -104,13 +104,13 @@ That returns a dictionary containing the keys `sentences` and (when applicable) 
 	                              u'PartOfSpeech': u'.'}]]}],
 	u'coref': [[[[u'It', 1, 0, 0, 1], [u'Hello world', 0, 1, 0, 2]]]]}
     
-To use it in a regular script or to edit/debug it (because errors via RPC are opaque), load the module instead:
+To use it in a regular script (useful for debugging), load the module instead:
 
     from corenlp import *
     corenlp = StanfordCoreNLP()  # wait a few minutes...
     corenlp.parse("Parse this sentence.")
 
-The server, `StanfordCoreNLP()`, takes an optional argument `corenlp_path` which specifies the relative path to the jar files.  The default value is `StanfordCoreNLP(corenlp_path="./stanford-corenlp-full-2014-08-27/")`.
+The server, `StanfordCoreNLP()`, takes an optional argument `corenlp_path` which specifies the path to the jar files.  The default value is `StanfordCoreNLP(corenlp_path="./stanford-corenlp-full-2014-08-27/")`.
 
 ## Coreference Resolution
 
@@ -158,4 +158,4 @@ I gratefully welcome bug fixes and new features.  If you have forked this reposi
 
 ## Related Projects
 
-Maintainers of the Core NLP library at Stanford keep an [updated list of wrappers and extensions](http://nlp.stanford.edu/software/corenlp.shtml#Extensions).
+Maintainers of the Core NLP library at Stanford keep an [updated list of wrappers and extensions](http://nlp.stanford.edu/software/corenlp.shtml#Extensions).  See Brendan O'Connor's [https://github.com/brendano/stanford_corenlp_pywrapper] for a different socket-based approach.
