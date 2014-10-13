@@ -23,7 +23,6 @@ import optparse
 import os, re, sys, time, traceback
 import jsonrpc, pexpect
 from progressbar import ProgressBar, Fraction
-from unidecode import unidecode
 import logging
 
 

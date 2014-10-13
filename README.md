@@ -8,7 +8,7 @@ This is a Python wrapper for Stanford University's NLP group's Java-based [CoreN
    * Outputs parse trees which can be used by [nltk](http://nltk.googlecode.com/svn/trunk/doc/howto/tree.html).
 
 
-It requires [pexpect](http://www.noah.org/wiki/pexpect) and [unidecode](http://pypi.python.org/pypi/Unidecode) to handle non-ASCII text.  This script includes and uses code from [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
+It depends on [pexpect](http://www.noah.org/wiki/pexpect) and includes and uses code from [jsonrpc](http://www.simple-is-better.org/rpc/) and [python-progressbar](http://code.google.com/p/python-progressbar/).
 
 It runs the Stanford CoreNLP jar in a separate process, communicates with the java process using its command-line interface, and makes assumptions about the output of the parser in order to parse it into a Python dict object and transfer it using JSON.  The parser will break if the output changes significantly, but it has been tested on **Core NLP tools version 3.4.1** released 2014-08-27.
 
